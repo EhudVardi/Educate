@@ -1,0 +1,2376 @@
+//Learn CPP
+//---------
+
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//https://www.youtube.com/watch?v=bFtkHJy9kIU&t=3798s
+//70* Experienced C++ Interview Questions
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//------------------
+//friend function
+//------------------
+
+//allow access into a class method from outside
+
+//it is like declaring a function in a class without definition, then give definition from outside the class (use same func name to connect). this func definition will be able to access private members that belong to that class, but it will NOT have access to privates that are inherited
+
+//friend is just your friend (class) and not you parents and g-parents (base classes)
+
+class Base {
+	int x;
+public:
+	Base() {}
+	Base(int x):x{x} {}
+	friend void func(Base &);
+};
+
+void fun(Base &obj) {
+	cout << obj.x << endl;
+	obj.x = 20;
+}
+
+void main() {
+	Base b(10);
+	fun(b);
+	
+	return 0;
+}
+
+//------------------
+
+
+//------------------
+//auto keyword in C++
+//------------------
+
+// automatically derive the type by the value assigned.
+// not included in CPP legacy
+// i integer, d double, <classname> class, p pointer
+
+#include <iostream>
+#include <typeinfo>
+using namespace std;
+
+class Base {};
+
+int main() {
+	auto x = 20;  
+	auto y = 20.5;
+	auto b = Base(); // init in stack
+	auto c = Base(); // init at heap - pointer
+	
+	cout << typeid(x).name() << endl; // i
+	cout << typeid(y).name() << endl; // d
+	cout << typeid(b).name() << endl; // 4Base
+	cout << typeid(c).name() << endl; // P4Base
+	
+	return 0;
+}
+
+//------------------
+
+
+//------------------
+//Code bloating. 
+//------------------
+
+//1. creating variables that are not required to have a life time
+// creating a string var is not needed because we just print it. 
+// instead, print the text directly.
+#include <iostream>
+using namespace std;
+int main() {
+	string str("EV");
+	cout << str << endl;
+	cout << "EV" << endl;
+	return 0;
+}
+
+//1. inline function mass calls
+// an inline function is copied at compile time.
+// if there's a statement that do that, the code will bloat
+#include <iostream>
+using namespace std;
+class Base {
+	int _x;
+public:
+	inline void print() { /* some code */ }
+}
+int main() {
+	Base b1;
+	b1.print();b1.print();b1.print();b1.print();b1.print();
+	return 0;
+}
+
+
+//------------------
+//constant cast in CPP
+//the expression const_cast<T>(v) can be used to change the const or volatile qualifiers of pointers or references.
+//T must be a pointer, reference or pointer-to-member type
+
+//RULES WHEN TO USE THIS
+// 1 only when we have to
+// 2 only when the actual refered obj/var is NOT const
+// 3 only when dealing wiht 3rd party lib and some API want data in non const form but we have it in const form. we have to make sure the API doesn't make changes to it.
+
+//------------------
+
+// examples below will compile but will produce unexpected results.
+
+// case 1:
+#include <iostream>
+using namespace std;
+
+int main() {
+	const int a1 = 10;
+	const int *b1 = &a1;
+	int *d1 = const_cast<int*>(b1);
+	*d1=15; 
+	cout << a1 << endl;  //print "10". the compiler will optimize and replace "a1" with "10"
+	cout << *d1 << endl; //prints 15! should be the same
+	
+	int a2 = 20;
+	const int *b2 = &a2;
+	int *d2 = const_cast<int*>(b2);
+	*d2=30;  // this will work because the original variable a2 is not constant, so there's no problem
+	cout << a2 << endl;   // both will print the same value
+	cout << *d2 << endl;
+	
+	return 0;
+}
+
+
+// case 2:
+//if we want to pass a const var of our own to a 3rd party lib that needs to get a non-const var, then we can use the const_cast
+// note that the function does not set anything into x which is important
+void thirfPartyFunc(int* x) {
+	int k = 10;
+	cout << k+*(x);
+}
+
+int main() {
+	const int x = 20;
+	const int* px = &x;
+	thirfPartyFunc(const_cast<int*>(px));
+	thirfPartyFunc((px));  //this line will not compile
+	return 0;
+}
+
+
+//case 3: remove the volatile modifier so a variable will be optimized
+#include <iostream>
+using namespace std;
+
+int main() {
+	
+	return 0;
+}
+
+//------------------
+
+
+
+
+
+
+//------------------
+// One of the usages of the keyword "decltype"
+// It checks the type of the expression
+//------------------
+
+// in this example, the template return type is T2 which is the second param to the Typed func "add"
+// the code will output 2.8 and then 2, this is inconsistant
+#include <iostream>
+using namespace std;
+
+template<typename T1, typename T2>
+T2 add (T1 a, T2 b) { 
+	return a+b;
+}
+
+int main() {
+	
+	cout << add(1, 1.8) << endl;
+	cout << add(1.8, 1) << endl;
+	return 0;
+}
+
+//to solve this we can use "decltype" to automatically assert the type
+//the code below will print 2.8 and then 2.8 which is desired
+//decltype(a+b) figures out that one of the params are given in float so it has to elevate the other to float too.
+#include <iostream>
+using namespace std;
+
+template<typename T1, typename T2>
+auto add (T1 a, T2 b) -> decltype(a+b){ 
+	return a+b;
+}
+
+int main() {
+	
+	cout << add(1, 1.8) << endl;
+	cout << add(1.8, 1) << endl;
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// **IMPORTANT!**
+// what is the difference between a pointer and a reference
+//------------------
+
+// a reference is NOT a variable of its own, like pointers. it can be considered as an alias
+// 1. (Mem Addr) have the same address as the var refered (unlike pointer)
+// 2. (Reassignment) unlike pointers re-assignment of a reference is NOT possible 
+// 3. (NULL) unlike pointers a reference MUST BE ASSIGNED A VALUE at declaration point!
+// int &r; -> this is illegal.
+// 4. (Arithmetic ops) unlike pointers, references cannot have arithmetic operations applied to.
+// int &r = i;
+// r++; // this is illegal!
+// 5. (Indirection) a reference cannot have another reference refering to it, unlike pointers
+// int i = 10;
+// //pointer p can have indirect pointers pointing to it.
+// int* p = &i;
+// int **pp = &p;  //indirect pointer to pointer p
+// int ***ppp = &pp;  //indirect pointer to pointer pp
+// //references can only have 1 level reference. its like re-aliasing the same symbol
+// int &r = i;
+// int &rr = r; // this is ok. both rr and r with have THE SAME VALUE
+
+
+#include <iostream>
+using namespace std;
+
+int main() {
+	
+	int i = 10;
+	int &r = i; //this is a reference to i
+	int *p = &i; //this is a pointer to i
+	
+	// print all three definition addresses
+	// this will print that &i and &r have THE SAME ADDRESS, while &p will have a different address, since a pointer is a variable of its own
+	cout << &i << '\t' << &r << '\t' << &p << endl;
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// differences between range based for loops and for_each loops
+// 1. 
+// 2.
+// 3.
+// 4.
+//------------------
+
+#include <iostream>
+#include <vector>
+#incldue <algorithm>
+using namespace std;
+
+void print(int val) {cout << val <<endl; }
+
+int main() {
+	
+	//  create and populate the array with simple for loop
+	vector<int> vec;
+	for (int i=0; i<5; i++) {
+		vec.push_back(i);
+	}
+	
+	// get each element into i (i is NOT an index but the value)
+	// - cannot define the range or iteration
+	for (int i: vec)
+		cout << i <<endl;
+	
+	// giving a start point and end point at the vector, and then giving a anonimous function that will be executed for each element i.
+	// - can define the range with  "vec.begin()+2" for ex
+	for_each(vec.begin(), vec.end(), 
+		[](int i) {
+			cout << i <<endl;
+		}
+	);
+	
+	// same as above but giving a named function "print". the param type must match!
+	for_each(vec.begin(), vec.end(), print);
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// dynamic_cast int CPP
+// syntax: dynamic_cast<Type_To_Cast_To>(Expression)
+// used at runtime to find out correct down-cast
+// 1. at least one virtual function at base class
+// 2. if cast success it will return a value of Type_To_Cast_To
+// 3. if cast fails - 
+//    type_To_Cast_To is pointer type then a NULL pointer will be returned
+//    type_To_Cast_To is a reference type then a std::bad_cast exception will be thrown.
+// "down cast" = base->child | "up cast" = child->base
+//------------------
+#include <iostream>
+using namespace std;
+
+class Base {
+	virtual void print() { cout << "Base" << endl; }
+};
+class Derived1: public Base {
+	void print() { cout << "Derived1" << endl; }
+};
+class Derived2: public Base {
+	void print() { cout << "Derived2" << endl; }
+};
+
+int main() {
+	Derived1 d1;
+	
+	// this works - cast d1 down to Base class
+	//NOTE - this is an "up" cast which is also legal. 
+	Base *bp = dynamic_cast<Base*>(&d1); 
+	// this will NOT work since bp is a pointer of type Base and it attemps to cast it up the wrong child type (was "Derived1" and tried to cast to "Derived2"
+	//NOTE - this is a "down" cast which is also legal. 
+	Derived2 *dp2 = dynamic_cast<Derived2*>(bp);  //dp2 = NULL
+	
+	// this cast will work
+	Derived1 *dp3 = dynamic_cast<Derived1*>(bp); //dp3 = an object
+	
+	try {
+		Derived1 &r1 = dynamic_cast<Derived1&>(d1); // this will pass
+		Derived2 &r2 = dynamic_cast<Derived2&>(d1); // this will throw exception
+	} catch (std::exception& e) {
+		cout << e.what() << endl;
+	}
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// explicit constructor
+// using explicit ctor helps avoid implicit call to the constructor
+//------------------
+#include <iostream>
+using namespace std;
+
+class Basese {
+	int b_var;
+public:
+	Base() {}
+	Base(int var) : b_var(var) {}
+	//explicit Base(int var) : b_var(var) {}  // same ctor with explicit modifier
+	void print() { std::cout << b_var << std::endl; }
+}
+
+void fun (Base b) {
+	b.print();
+}
+
+int main() {
+	
+	// if the ctor "Base(int var)" does not have the "explicit" modifier, then the code below will compile and work.
+	
+	Base obj1(10); // normal ctor call
+	Base obj2 = 20; // implicit call to the constructor "Base(int var)"
+	// also works passing to functions
+	fun(obj1); // normal ctor call
+	fun(30); // implicit call to the constructor Base(int var)
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// "extern c" in cpp code
+// used when we want to include c code into our cpp code
+// the issue arise since cpp compiler mangles (modifies) all function names (we can see the given symbols (names) by the compiler in the *.o files generated) to achieve overloading.
+// the solution is to encapsulate the #include statment with the phrase "extern "C" {}
+//------------------
+
+#include <iostream>
+// "cfile.h" is a c header file that contains a function "func".
+// the included func will get its name changed at compile time
+#include "cfile.h" 
+// including it like this will prevent the compiler from modifying the func name 
+extern "C" {
+	#include "cfile.h"
+}
+
+using namespace std;
+int main() {
+	
+	func();
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// function chaining
+// calling multiple methods on an object that each returns itself so the entire call chain can be written in one line.
+//------------------
+#include <iostream>
+using namespace std;
+
+class Base {
+	int _a,_b;
+public:
+	Base& funcA(int a) { _a = a; return *this; }
+	Base& funcB(int b) { _b = b; return *this; }
+	void print() { cout << _a << "," << _b <<< endl; }
+}
+int main() {
+	
+	Base b;
+	b.funcA(1).funcB(2).print(); 
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// function hiding in c++
+// when we define a function in a derived class where the base class has a func with the same name, but with different param type. the Base func will not be called
+// to explicitly call it, we can use SCOPE RESOLUTION -> <instance>.Base::func(param)
+// another way is to insert the base function func in the scope of the derived class, by using "using Base::func;" which puts the base class func visible at the derived class and so it makes it available
+//------------------
+// TODO
+#include <iostream>
+using namespace std;
+
+class Base {
+public:
+	void func(int a) { cout << "Base" << endl; }
+}
+class Derived: public Base {
+public:
+
+	using Base::func; // adding this line will add the base class func into the derived scope
+	
+	void func(char c) { cout << "Derived" << endl; }
+}
+int main() {
+	Derived d;
+	
+	d.func(1);
+	d.func('a'); // this will not call the case function
+	
+	d.Base::func(1); // this will call the base func since we are using scope resolution
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// function pointer
+// stores an address of a function. 
+//// good use case example -> passing the "qsort" function a "compare" function which will allow the "qsort" to be generic and be able to sort any type of array/structure.
+qsort(Arr,ArrLength,elementSize,compare) //compare is a pointer to our own compare function
+
+
+//// for function with signature 
+int add(int a, int b) {return a+b;}
+// defining a pointer to this function (define and assign address)
+// must match the signature of the function to point to
+int (*funcPTR)(int,int) = &add; // traditional way
+int (*funcPTR)(int,int) = add; // new compiler's way
+// using the pointer to call the function
+int c = (*funcPTR)(1,2); // traditional way
+int c = funcPTR(1,2); // new compiler's way
+
+//// passing a function as an argument
+int funcThatGetsPassedTheFuncPTR(int (*someFunc)(int,int)) {\
+	return someFunc(3,4);
+}
+void main() {
+	
+	printf("%d", funcThatGetsPassedTheFuncPTR(add));
+	
+}
+
+//// returning a function pointer as an agrument
+int add(int a, int b) {return a+b;}
+int sub(int a, int b) {return a-b;}
+
+typedef int(*arithmeticFunc)(int,int); //define the type of the function that returns a airthmetic function by type, so it will be readable
+arithmeticFunc getFunc(int type) {
+	if (type == 1)
+		return add;
+	if (type == 2)
+		return sub;
+}
+void main() {
+	int (*someFunc)(int,int); // the pointer to our function
+	someFunc = getFunc(1); // set the pointer to the add func
+	printf("%d", someFunc(2,3)); // call it using the pointer and print.
+}
+
+//*******
+// we can replace this
+typedef int(*arithmeticFunc)(int,int);
+arithmeticFunc getFunc(int type) { .. }
+// with this
+int (*getFunc (int type))(int,int) { .. }
+//*******
+
+//// using arrays of function pointers
+int add(int a, int b) {return a+b;}
+int sub(int a, int b) {return a-b;}
+typedef int(*arithmeticFunc)(int,int);
+void main() {
+	arithmeticFunc funcArr[2] = {add, sub}; // array of two func pointers
+	int added = funcArr[0](1,2);
+	//int added = (*funcArr)[0](1,2);  //legacy 
+	int subed = funcArr[1](1,2);
+	//int subed = (*funcArr[1])(1,2);  //legacy 
+}
+//*******
+// we can replace this
+typedef int(*arithmeticFunc)(int,int);
+arithmeticFunc funcArr[2] = {add, sub};
+// with this
+int (*funcArr[2])(int,int) = {add, sub};
+//*******
+
+//------------------
+
+
+
+//------------------
+// functor
+// TODO: 1:38:45
+//------------------
+#include <iostream>
+using namespace std;
+
+int main() {
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// what is gdb and how to use it to debug
+// 1:40:50
+//------------------
+#include <iostream>
+using namespace std;
+
+int main() {
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// what is compiler linker and loader
+// TODO: 1:52:20
+
+// diagram #1
+//-------------------------------------------------------------------------------------
+// source -> compiler -> obj |
+// source -> compiler -> obj |-> linker -> [exectuable] -> loader -> [runnig exec in mem]
+// source -> compiler -> obj |
+//            [library file] |
+//-------------------------------------------------------------------------------------
+
+// diagram #2
+//-------------------------------------------------------------------------------------
+//									IDE (source code writing)
+//										|
+//										|	(.cpp, .h) source code and header files
+//										|
+//									preprocessor
+//										|
+//										|	(*.i) include files, replaced symbols
+//										|
+//									compiler
+//										|
+//										|	(*.s) assembly code
+//										|
+//									Assembler
+//										|
+//										|	(*.o) object code
+//										|
+//	static Libraries (.lib, .a) --->Linker
+//										|
+//										|	(.exe)
+//										|
+//	dynamic Libraries (.dll, .so)--->Loader
+//										|
+//										|
+//										|
+//									operating system
+//-------------------------------------------------------------------------------------
+
+//------------------
+
+
+
+//------------------
+// delete[] - how does delete[] (delete on array) knows the size of the array if we use a pointer?
+// answer - at array init we give a size. at that point we store it somewhere.
+// two ways to store it:
+// 1. Over allocation - we add more memory to the array where we store that size, and at de-allocation time we get that size from there and de-allocate the entire block.
+// 2. Associative array - maintaining a separate array where we store pointer+size ([*p, SIZE]) and at deallocation we search for that pair and take the SIZE from there.
+//------------------
+//TODO:
+#include <iostream>
+using namespace std;
+
+int main() {
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// local static variable in a template function
+//TODO:
+//------------------
+#include <iostream>
+using namespace std;
+
+int main() {
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// "this" pointer in C++
+// it is hiddenly passed as argument to non static member functions
+// it is a const pointer [Type* const this]
+// if the member function is const (in case of a "get" method for example where values are read but not write) than this pointer type is passed as const  [const Type* const this]
+//------------------
+//TODO:
+#include <iostream>
+using namespace std;
+
+int main() {
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// how to assign any object to a primitive data type? 
+// answer - define the operator <primitive_type>() in the class
+// TODO: 2:26:14
+//
+//------------------
+#include <iostream>
+using namespace std;
+
+int main() {
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// how to call function before main
+// TODO: 2:29:16
+//------------------
+#include <iostream>
+using namespace std;
+
+int main() {
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// how to check if two different objects belong to the same class in c++
+// answer - useing #include <typeinfo>
+// TODO: 2:31:58
+//------------------
+#include <iostream>
+using namespace std;
+
+int main() {
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// how to overload pre and post increment operator in c++
+// TODO: 2:33:36
+//------------------
+#include <iostream>
+using namespace std;
+
+int main() {
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// how to print N times without a loop or recursion
+// print in class ctor and init an instance N times
+// TODO: 2:38:50
+//------------------
+#include <iostream>
+using namespace std;
+
+int main() {
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// how to set/clear/toggle/check one bit in of an integer var
+// TODO: 2:40:14
+//------------------
+#include <iostream>
+using namespace std;
+
+int main() {
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// how to stop an object from being copied
+//------------------
+
+// 1st way - keep copy constructor and assignment operator private
+#include <iostream>
+using namespace std;
+
+class Base {
+	int _x;
+public:
+	Base() {}
+	Base(int x) : _x{x} {}
+private:
+	Base(const Base& obj): _x{obj._x} {}
+	Base& operator = (const Base& rhs) { _x = rhs._x; return *this;}
+};
+
+int main() {
+	Base b1(10);
+	Base b2(20);
+	
+	Base b3(b1);	// -> this will produce an error 
+	b1 = b2;		// -> this will produce an error 
+	return 0;
+}
+//------------------
+
+//------------------
+// 2nd way - inherit dummy class with private copy constructor and assignment operator
+// -> this will separate the Base class from the code that blocks the copy
+#include <iostream>
+using namespace std;
+
+class StopCopy {
+public:
+	StopCopy() {}
+private:
+	StopCopy(const StopCopy& obj) {}
+	StopCopy& operator = (const StopCopy& rhs) { return *this; }
+};
+
+class Base : public StopCopy {
+	int _x;
+public:
+	Base() : _x{0} {}
+	Base(int x) : _x{x} {}
+};
+
+
+int main() {
+	Base b1(10);
+	Base b2(20);
+	
+	Base b3(b1);	// -> this will produce an error 
+	b1 = b2;		// -> this will produce an error 
+	return 0;
+}
+//------------------
+
+// 3rd way - delete copy ctor and assignment operator from your class - cleaner
+#include <iostream>
+using namespace std;
+
+class Base {
+	int _x;
+public:
+	Base() {}
+	Base(int x) : _x{x} {}
+	Base(const Base& obj) = delete;
+	Base& operator = (const Base& rhs) = delete;
+};
+
+int main() {
+	Base b1(10);
+	Base b2(20);
+	
+	Base b3(b1);	// -> this will produce an error 
+	b1 = b2;		// -> this will produce an error 
+	return 0;
+}
+//------------------
+
+//------------------
+// how to prevant taking the address of my instance of an object
+
+// 1st way: overload the reference (&) operator and set its visibily scope to private
+//------------------
+#include <iostream>
+using namespace std;
+
+class Base {
+	int _x;
+public:
+	Base() {}
+	Base(int x) : _x{x} {}
+private:
+	Base* operator & () { return this; }
+};
+
+int main() {
+	Base b;
+	cout << &b << endl;
+	return 0;
+}
+//------------------
+
+// 2nd way: delete the reference & operator from the class
+//------------------
+#include <iostream>
+using namespace std;
+
+class Base {
+	int _x;
+public:
+	Base() {}
+	Base(int x) : _x{x} {}
+	Base* operator & () = delete;
+};
+
+int main() {
+	Base b;
+	cout << &b << endl;
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// how to prevent inheriting from a class
+// -> use "final" keyword on the base class that we wish to ceil.
+// TODO: 3:00:30
+//------------------
+#include <iostream>
+using namespace std;
+
+class Base final {
+	int _var1;
+public:
+	Base() {}
+	Base(int var1) : _var1(var1) {}
+};
+
+class Derived: public Base {
+	int _var2;
+public:
+	Derived() {}
+	Derived(int var1, int var2): Base(var1), _var2(var2) {}
+};
+
+int main() {
+	Derived d(1,2);
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// how to write my own atoi func
+//------------------
+#include <iostream>
+using namespace std;
+
+int my_atoi(char *str) {
+	
+	if (str[0] == '\0')
+		return 0;
+	
+	int res = 0;
+	bool sign = true;
+	int i = 0;
+	
+	if (str[0] == '-') {
+		sign = false;
+		i++;
+	}
+	else if (str[0] == '+')
+		i++;
+	
+	while (str[i] != '\0') {
+		if (str[i] < 48 || str[i] > 57)
+			break;
+		res = 10*res + str[i]-48;
+		i++;
+	}
+	
+	if (!sign)
+		res = -res;
+	
+	return res;
+}
+
+int main() {
+	
+	cout << atoi("-1234") << "," << my_atoi("-1234") << endl;
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// How vectors work internally in cpp STL
+// -> capacity doubles everytime the size reach to capacity
+//------------------
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+int main() {
+	std:vector<int> vec;
+	
+	int i = 30;
+	do {
+		vec.push_back(i);
+		cout << "capacity=" << vec.capacity() << endl;
+		cout << "size=" << vec.size() << endl;
+		i--;
+	}while (i > 0);
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// how to call a constructor and destructor explicitly
+// for objects in the stack this should NOT be done explicitly!
+//------------------
+#include <iostream>
+using namespace std;
+
+class Base {
+	int var;
+public:
+	Base () { cout << "ctor" << endl; }
+	~Base () { cout << "dest" << endl; }
+};
+
+int main() {
+	cout << "before nameless instance" << endl;
+	Base(); // ** this is an interesting case. since the object is instantiated temporary (we do not give it any name as a variable), as soon as the next line is executed, this object is not pointed by anyone and so the constructor is immediately called
+	cout << "after nameless instance" << endl;
+	
+	Base b; // explicit call to constructor
+	b.~Base(); // explicit call to destructor -> should not do it because the object is in the stack and we want to compiler to handle the destruction of the object.
+	
+	
+	return 0;
+	
+} /// -> here the instance "b" goes out of the scope and thus its destructor will be called again implicitly.
+
+
+//------------------
+
+
+//------------------
+// cpp optimization checking website ->  https://godbolt.org
+//------------------
+
+
+//------------------
+// function overloading - Name mangling
+// compiler extends the symbols of the overloaded functions and so it compiles
+//------------------
+#include <iostream>
+using namespace std;
+
+void print(int val) {  } // this func name is renamed to  "_Z5printi"
+void print(double val) {  }  // this func name is renamed to  "_<prefix>printd"
+
+int main() {
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// object slicing in cpp
+// when creating a base object by copying from a derived object, the derived data will not be copied (duh..)
+// in the example below, "Base b_obj = d_obj;" will copy only b_var data of d_obj into the b_var of the new b_obj.
+// this is called object slicing because the derived objcet instance data is sliced into the base object instance
+//------------------
+#include <iostream>
+using namespace std;
+
+class Base {
+public:
+	int b_var;
+	Base() { cout << "Base ctor" << endl; }
+	~Base() { cout << "Base dest" << endl; }
+};
+class Derived: public Base {
+public:
+	int d_var;
+	Derived() { cout << "Derived ctor" << endl; }
+	~Derived() { cout << "Derived dest" << endl; }
+};
+
+int main() {
+	Derived d_obj;
+	Base b_obj = d_obj;	
+	cout << "exit" << endl;
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// efficient and cool algorithm to count '1' bits of a binary number
+// amazing how it works
+//------------------
+#include <iostream>
+using namespace std;
+
+int numOnes_normal(int binNum) {
+	
+	int count = 0;
+	while (binNum) {
+		count += (binNum & 1);
+		binNum >>= 1;
+	}
+	return count;
+}
+int numOnes_BrianKernighanAlgo(int binNum) {
+	
+	int count = 0;
+	while (binNum) {
+		binNum &= (binNum-1);
+		count++;
+	}
+	return count;
+}
+
+
+int main() {
+	for (int i=0; i<32; i++) {
+		cout << "num=" << i << "\t(normal,BrianKernighanAlgo)= " << numOnes_normal(i) << ", " << numOnes_BrianKernighanAlgo(i) << endl;
+	}
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// override in cpp (cpp v11 and above)
+// -> seems like override in cpp does not require the "override" keyword to override base fucntions.
+// it is a good practice to put it because
+// 1. testing becomes easy because the maintenance is easier
+// 2. more important, a compile time check is performed and in case the overrided function signature does not match the virtual base one, and the override keyword was added, then the compiler will alert about the signature mismatch
+//------------------
+#include <iostream>
+using namespace std;
+
+class Base {
+	int b_var;
+public:
+	virtual void fun() { cout << "base" << endl; }
+}
+class Derived {
+	int d_var;
+public:
+	void fun() { cout << "derived" << endl; } // this already overides the base func
+	void fun() override{ cout << "derived" << endl; } // nothing will change here.
+	void fun(int a) { cout << "derived" << endl; } // here the signature mismatch so the base func is not overrided. the override keyword is not used here so the compiler won't alery
+	void fun(int a) override{ cout << "derived" << endl; } // same mismatch but the override keyword is used so the compiler will alert
+}
+
+int main() {
+	Base* b = new Derived();
+	b->fun();
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// placement new in C++
+// -> when using the "new" keyword, we are switching to kernel mode from user mode to search for adequate space fot the new object. it is an overhead to the system in general. (switching to kernel is a hursh operation)
+// if this is done many times, this overhead becomes a problem.
+// -> the solution is to explicitely allocate memory for all the object instances that we required ahead of time. it is called a "memory pool".
+// this way if we need 10 instances, we call the kernel only once to create the pool.
+// -> create a memory pool (char[] memory) in the size of the class, times the amount of instances
+// -> when creating each object, provide the address of the memory which the object will be placed into, in the memory pool. note that we have to set the memory location identation correctly. if the object size in byte is S, then each instantiation have to skip S bytes from the last object.
+// finally when finishing using the pool (destructing all objects), we delete the pool itself
+//------------------
+#include <iostream>
+using namespace std;
+
+class Base {
+public:
+	Base() { cout << "ctor" << endl; }
+	~Base() { cout << "dest" << endl; }
+};
+
+int main() {
+	
+	cout << "normal case" << endl;
+	Base* obj = new Base();
+	delete obj;
+	
+	
+	cout << "placement new case" << endl;
+	char* memory = new char[10*sizeof(Base)]; // Base size if 4 bytes so memory is 40 bytes
+	Base* obj1 = new (&memory[0]) Base();
+	Base* obj2 = new (&memory[4]) Base();
+	Base* obj3 = new (&memory[8]) Base();
+	
+	obj1->~Base();
+	obj2->~Base();
+	obj3->~Base();
+	
+	delete[] memory;
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// reinterpret_cast in C++
+// TODO: 3:40:20
+// -> this use is never safe for anything other than casting back to the original type
+// -> if we use this cast then the code becomes "non-portable" -> meaning it is now specific hardware dependent since we are assuming how the HW is defining the types in the memory (int can be 2 can be 4 and can be 8 bytes for ex.). we are loosing the hardware abstraction.
+
+// This is dangerous because it can typecast any pointer type to any other pointer type
+//------------------
+#include <iostream>
+using namespace std;
+
+class Mango {
+public:
+	void eatMango() { cout << "eating mango" << endl; }
+};
+class Banana {
+public:
+	void eatBanana() { cout << "eating banana" << endl; }
+};
+int main() {
+	Banana* b = new Banana();
+	Mango* m = new Mango();
+	
+	Banana* newBanana = reinterpret_cast<Banana*>(m);
+	newBanana->eatBanana();
+	
+	return 0;
+}
+//------------------
+
+// Good usage - if we want to treat a type data in a different way.
+// in the example below we create an instance of the struct and then creating an int* pointer that points to it but as if it was an actual integer. this way we can access its memory structure as if it was an integer array.
+// -> this reminds me of the Union keyword that allows to share the same memory with multiple structure definitions
+//------------------
+#include <iostream>
+using namespace std;
+
+struct myStruct {
+	int x; // 4 byte
+	int y; // 4 byte
+	char c; // 2 byte
+	bool b; // 2 byte
+};
+
+int main() {
+	
+	myStruct s;
+	s.x = 5; s.y = 10; s.c = 'a'; s.b = true;
+	
+	int* p = reinterpret_cast<int*>(&s);
+	
+	cout << sizeof(s) << endl;
+	
+	cout << *p << endl; // will print s.x -> 5
+	p++;
+	cout << *p << endl; // will print s.y -> 10
+	p++;
+	cout << *p << endl; // will print (int)s.c + (int)true*0xFF -> 256 + 97 = 353
+	
+	// we can separate the character by doing reinterprete again to char
+	
+	char* c = reinterpret_cast<char*>(p);
+	cout << *c << endl;
+	
+	// since the char pointer points to a 2 byte memory chunk, we can use it to point to the boolean after it. this is NOT possible using the integer pointer since it points to 4 byte chunks and we will skip over it.
+	c++;
+	bool* b = reinterpret_cast<bool*>(c);
+	cout << *b << endl;
+	
+	return 0;
+}
+//------------------
+
+
+
+
+
+//------------------
+// static_cast in C
+// TODO: 3:54:42
+//------------------
+
+// When to use and why:
+// 1. when converting compatible types (e.x. float to int)
+// 2. when calling conversion operator and conversion constructor
+// 3. to avoid (and get a compiler error) when trying to convert unmatched types
+// 4. to avoid conversion of derived instance into a private base pointer.
+// 5. use always when up-casting (derived to base) but never use for down-casting (base to derived) - there's not runtime checks for static_cast conversions
+// 6. explicitly defines casting intensions. make it easier to debug and manage (search)
+// 7. errors are found at compile time which is very important.
+
+// 6 examples below that illustrate these points:
+
+
+// program 1
+// performs implicit conversions between types
+// easy to search and find all casts in the code.
+// the cast will happend AT COMPILE TIME
+#include <iostream>
+using namespace std;
+
+int main() {
+	float f = 3.5;
+	int a;
+	
+	// both below lines are doing THE SAME
+	// searching for all casts is very easy when we use "static_cast"
+	// this helps greatly to find and analyze casting in the code.
+	a = f;
+	a = static_cast<int>(f);
+	
+	return 0;
+}
+//------------------
+
+
+// program 2
+// used when conversion between types is provided with conversion operator or conversion constructor.
+// 
+#include <iostream>
+using namespace std;
+
+class Int {
+	int x;
+public:
+	// conversion constructor - will be called when an instance gets an assignment to a value, as if it was of that primitive type. 
+	Int(int x=0): x{x} { cout << "conversion constructor" << endl; }
+	// conversion operator - will be called when a instance of this class is used as a string.
+	operator string () {
+		cout << "conversion operator" << endl;
+		return to_string(x);
+	}
+};
+
+int main() {
+	Int obj(3);
+	
+	string str1 = obj;  // conversion operator is called implicitly
+	obj = 20;	// conversion constructor is called implicitly
+	
+	// same happens here but we explicitly casting using the static_cast
+	string str2 = static_cast<string>(obj); // conversion operator is called explicitly
+	obj = static_cast<Int>(30);	// conversion constructor is called explicitly
+	
+	return 0;
+}
+//------------------
+
+
+// program 3
+// static_cast is more restrictive than C-style cast.
+// e.x.  char* to int* is allowed in C-style cast but not with static_cast
+#include <iostream>
+using namespace std;
+
+int main() {
+	char c; 			// 1 byte data
+	int *p = (int*)&c;  // 4 byte data
+	*p = 5;				// compiles but fails are run-time - will allow access mem that should not be accessed
+	
+	int* ip = static_cast<int*>(&c); // FAIL at compile time!, because pointer types mismatch. this help avoid from the previous example
+	
+	return 0;
+}
+//------------------
+
+
+// program 4
+// static_cast prevents casting from derived class to a private base pointer
+// ** private inheriting means that any class that inherit from the derived classs will not have access to its derived class
+// i.e.
+// assume: class Base {};  class Derived: private Base {};
+// class Derived2: public Derived {};
+// the class Derived2 will not have access to Base class elements
+
+#include <iostream>
+using namespace std;
+
+class Base {};
+class Derived: private Base {}; // the derivation here is private
+
+int main() {
+	Derived d1;
+	Base* bp1 = (Base*)&d1; // this is allowed at compile time but IT IS NOT DESIRED!
+	Base *bp2 = static_cast<Base*>(&d1);  // this will fail at compilation 
+	return 0;
+}
+//------------------
+
+
+// program 5
+// static_cast used for all up-casts (cast derived to base), but should never be used for down-casts (cast base to derived), because with down-cast we don't know the true type of the instance. this is because up-cast we always have one parent but down-cast we can have many childs
+// the example below will compile but it is incorrect!
+#include <iostream>
+using namespace std;
+
+class Base {};
+class Derived1: public Base {};
+class Derived2: public Base {};
+
+int main() {
+	Derived1 d1;
+	Derived2 d2;
+	
+	Base* bp1 = static_cast<Base*>(&d1); // upcast d1 to base pointer bp1
+	Base* bp2 = static_cast<Base*>(&d2); // upcast d2 to base pointer bp2
+	
+	Derived1 *d1p = static_cast<Derived1*>(bp2); // downcast with a mixup. d2->d1
+	Derived2 *d2p = static_cast<Derived2*>(bp1); // downcast with a mixup. d1->d2
+	
+	return 0;
+}
+//------------------
+
+
+// program 6
+// static_cast is recommended when casting to and from a void* pointer
+#include <iostream>
+using namespace std;
+
+int main() {
+	int i = 10;
+	void* v = static_cast<void*>(&i);
+	int* ip = static_cast<int*>(v);
+	return 0;
+}
+//------------------
+
+
+
+
+
+//------------------
+// structural padding & packing in C & CPP
+// TODO: 4:10:15
+// -> the padding i was working on in the protocol message structures. packing removes the padding which wastes memory but optimize read because reading is simpler. (padding in structure is by the largest element defined inside it. also, when defining a structure within a structure, the padding will be by the largest primitive, within the inner strucure as well as the outer stcruture.
+//------------------
+#include <iostream>
+using namespace std;
+
+int main() {
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// difference between Enum & Enum class
+// TODO: 4:36:55
+// -> class simply adds scope so the names of the enum values are separated from other types.
+// -> also, class enum values cannot be converted to integers easly (like normal enums, which always takes by default the values 0, 1, 2, etc)
+// -> if we define two separate regular enum which does not have any connection in terms of meanings, they could still be compared (because of the default values described above).
+//------------------
+#include <iostream>
+using namespace std;
+
+int main() {
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// Two Ways To Return Multiple Values From Functions In C++
+// 4:46:53 
+// -> normal is to define a struct that will hold these values.
+// -> other way is to use tuples. we can declare the output variables outside and then pass them into as a tuple, or we can use the "auto" keyword and then use the "get" and the value position in the tuple to retrieve the values.
+//------------------
+#include <iostream>
+#include <string>
+#include <tuple>
+using namespace std;
+
+tuple<int, char, string> fun() {
+	return make_tuple(1,'a',"str");
+}
+int main() {
+	
+	int n, char c, string s;
+	auto tup = fun();
+	n = get<0>(tup);
+	c = get<1>(tup);
+	s = get<2>(tup);
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// Virtual Destructor In C++?
+// 4:51:43 
+// ctors are called by what type of object their pointer hold, but dests are called by the type of the pointer!
+
+//------------------
+#include <iostream>
+using namespace std;
+
+class Base {
+public:
+	virtual void fun() { cout << "Base fun" << endl; }
+	Base() { cout << "Base ctor" << endl; }
+	~Base() { cout << "Base dest" << endl; }
+	//virtual ~Base() { cout << "Base Dest" << endl; }
+	// if we make the dest virtual then the derived dest will be called also (the derived dest and then the base)
+};
+class Derived : public Base {
+public:
+	virtual void fun() { cout << "Derived fun" << endl; }
+	Derived() { cout << "Derived ctor" << endl; }
+	~Derived() { cout << "Derived dest" << endl; }
+};
+
+int main() {
+	// b1 is of type Base and is held by a Base pointer - Base ctor will be called
+	Base* b1 = new Base(); 
+	// b2 is of type Derived and is also held by a Base pointer - Derived ctor will be called
+	Base* b2 = new Derived();
+	
+	b1->fun();// will call the Base fun version
+	b2->fun();// will call the Derived fun version
+	
+	delete b1; // this will call the Base dest
+	delete b2; // ** if the Base dest is not virtual, then this will not call the Derived dest!
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// Where do we HAVE to use Initialiser List In C++?
+// 4:57:14 
+//------------------
+
+
+// case 1: when we want to init a non-static const member of a class, we must use init list and we cannot do it within the ctor itself.
+#include <iostream>
+using namespace std;
+
+class Base {
+	const int _x;
+public:
+	Base() : _x{0} {}
+	Base(int x) : _x{x} {}
+	//Base() { _x=0; }  //-> this will give a compiler error
+	//Base(int x) { _x=x; }   //-> this will give a compiler error
+};
+int main() {
+	Base b1(10);
+	Base b2(20);
+	
+	return 0;
+}
+
+
+// case 2: when we want to init a non-static reference that is a member of a class, we must use init list and we cannot do it within the ctor itself
+#include <iostream>
+using namespace std;
+
+class Base {
+	int& _x;
+public:
+	Base() : _x{0} {}
+	Base(int x) : _x{x} {}
+	//Base() { _x=0; }  //-> this will give a compiler error
+	//Base(int x) { _x=x; }   //-> this will give a compiler error
+};
+int main() {
+	Base b1(10);
+	Base b2(20);
+	
+	return 0;
+}
+
+
+// case 3: when we want to init one class type with another class type, we must use init list if the first class type does not have a default ctor.
+#include <iostream>
+using namespace std;
+
+class One {
+	int _x;
+public:
+	//One( : _x{0} {} // a default ctor 
+	One(int x) : _x{x} {}
+};
+class Two {
+	One _a;
+public:
+	Two(One x) : _a{x} {}
+	// Two(One x) {_a = x;}  -> this will not work unless "One" will have a default ctor
+};
+
+int main() {
+	One one(10);
+	Two two(one);
+	
+	return 0;
+}
+
+
+// case 4: when we want to init a Base class members when calling a Derived class.
+#include <iostream>
+using namespace std;
+
+class Base {
+	int _b;
+public:
+	Base(int b) : _b{b} {}
+};
+class Derived : public Base {
+	int _d;
+public:
+	Derived(int b, int d) : Base{b}, _d{d} {}
+	//Derived(int b, int d) { _b=b; , _d=d; } -> this will not work
+};
+
+int main() {
+	Derived d(1,2);
+	return 0;
+}
+
+
+// case 5: when the name of a ctor parameter matches the member name itself (not _x=x  but _x=_x)
+#include <iostream>
+using namespace std;
+
+class Base {
+	int _b;
+public:
+	Base(int _b) : _b{_b} {}
+	//Base(int _b) { _b=_b; } // this will obviously won't work.
+};
+
+int main() {
+	Base b(1);
+	return 0;
+}
+
+
+// case 6: when in one class we have a member of another type of class that is used by a ctor to init itself, if we do not use the init list then it will create a copy of that another class, adding an overhead. by using the init list we do not make a copy of the given another class at init time.
+#include <iostream>
+using namespace std;
+
+class Another {
+	int _x;
+public:
+	Another () { cout << "another default ctor" << endl; }
+	Another (int x) { _x=x; cout << "another parameter ctor" << endl; }
+	Another (const Another& obj) { this->_x = obj._x; cout << "another copy ctor" << endl; }
+	Another& operator = (const Another& obj) { cout << "another assignment operator" << endl; }
+};
+class MyClass {
+	Another _a;
+public:
+	MyClass() { cout << "MyClass default ctor" << endl; }
+	
+	// output:
+	//another parameter ctor
+	//another copy ctor
+	//another copy ctor
+	//MyClass parameter ctor
+	MyClass(Another a) : _a{a} { cout << "MyClass parameter ctor" << endl; }
+	
+	// output:
+    //another parameter ctor
+    //another copy ctor
+    //another default ctor
+    //another assignment operator
+    //MyClass parameter ctor
+	//   MyClass(Another a) { _a=a; cout << "MyClass parameter ctor" << endl; }
+};
+
+int main() {
+	Another a(1);
+	MyClass mc(a);
+	
+	return 0;
+}
+
+//------------------
+
+
+
+//------------------
+// What Are The Drawbacks Of Using Vector In C++?
+// TODO: 5:11:42 
+// vectors use simple arrays in the background, so the following happens
+// 1. it over allocates memory (capacity grows by factor of two)
+// 2. when the capacity changes (doubles), it COPIES ALL ELEMENTS from PREVIOUS vector to a new vector!
+//------------------
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main() {
+	vector<int> vec;
+	
+	for (int i=0; i<100; i++) {
+		cout << "size: " << vec.size() << "\tcap: " << vec.capacity() << "\taddr: " << &vec << endl;
+		vec.push_back(i);
+	}
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// What Is Constructor Delegation In C++?
+// 5:16:19 
+// -> similar to ctor in C# where we chain constrctor call to another constructor to reuse the same code.
+// not only the initilization of the members will be written once, but all the other initialization required will be written into ctor3 just once.
+//------------------
+#include <iostream>
+using namespace std;
+
+class Base {
+	int _a, _b;
+public:
+	Base(): Base{0,0} {}   //ctor1 -> calls ctor3(0,0)
+	Base(int a): Base{a,0} {}   //ctor2 -> calls ctor3(a,0)
+	Base(int a, int b): _a{a}, _b{b} {}   //ctor3  -> list init _a & _b
+};
+
+int main() {
+	Base b1();
+	Base b2(10);
+	Base b3(10,20);
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// What Is Return Value Of printf And scanf In C & C++?
+// 5:20:21 
+// printf returns the number of characters that were printed
+// scanf returns the number of elements that were read from the console , where elements are basically lines
+//------------------
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+int main() {
+	int printOut = printf("%s", "hello world\n"); //12 chars
+	cout << printOut << endl;
+	
+	char str[100];
+	int scanIn = scanf("%s", str); // 1 element scanned
+	cout << scanIn << endl;
+	int val;
+	scanIn = scanf("%s %d", str, &val); // 2 elements scanned
+	cout << scanIn << endl;
+	
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// What Is RVO And NRVO Copy Elision In C++?
+// 5:22:18 
+// RVO - return value optimization
+// NRVO - named return value optimization
+// -> when compiling there's a flag that can disable some optimization invlovling calling copy constructor without any real need.
+// -fno-elide-constructors
+// adding this switch  to the compile command will cause the example below to output
+// ctor
+// copy ctor
+// copy ctor
+// this is because it disabled the optimization and the function call and the assignment are both calling the copy constructor 
+//------------------
+#include <iostream>
+using namespace std;
+class Base {
+public:
+	Base() { cout << "ctor" << endl; }
+	Base(const Base&) { cout << "copy ctor" << endl; }
+};
+Base func() { 
+	return Base();
+}
+int main() {
+	Base b = func();
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// What Is The Best Place To Use Enum In C++?
+// 5:26:15 
+// -> when we know beforehand the entire set of possible values for a specific problem. for ex - colors.
+//------------------
+#include <iostream>
+using namespace std;
+
+enum class Color {red, blue, green, };
+void fun(Color c) {
+	switch (c) {
+		case Color::red: cout << "red" << endl; break;
+		case Color::blue: cout << "blue" << endl; break;
+		case Color::green: cout << "green" << endl; break;
+	}
+}
+int main() {
+	fun(Color::red); fun(Color::blue); fun(Color::green);
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// What Is The Difference Between struct And class In C++?
+// 5:28:42 
+//------------------
+// 1. memebr default visibility is private for classes and public for structs
+#include <iostream>
+using namespace std;
+
+class classBase {
+	int _c;
+};
+
+struct structBase {
+	int _s;
+};
+int main() {
+	classBase cb;
+	structBase sb;
+	cout << sb._s << endl;
+	cout << cb._c << endl; // should not work
+	return 0;
+}
+// 2. inheritance default visibility is private for classes and public for structs
+#include <iostream>
+using namespace std;
+
+class BaseClass {};
+class DerivedClass: private BaseClass; // the private here is not required
+
+struct BaseStruct {};
+struct DerivedStruct: public BaseStruct; // the public here is not required
+
+int main() {
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// What Is The Order Of Function Parameter Evaluation In C++?
+// 5:32:10 
+// -> the order of parameter evaluation is un-defined! it is up to the compiler to decide. what is promised is that all parameters will be evaluated BEFORE the call to the function (duhh..)
+// executing the example below in 
+// "https://www.programiz.com/cpp-programming/online-compiler/"
+// shows that calling a function with two params, th SECOND param is evaluated first and only then the FIRST param will.
+//------------------
+#include <iostream>
+using namespace std;
+
+int param1() { cout << "param1" << endl; return 1; }
+int param2() { cout << "param2" << endl; return 2; }
+void func1Param(int a) { cout << a << endl; }
+void func2Params(int a, int b) { cout << a << ", " << b << endl; }
+int main() {
+	func1Param(param1() + param2());
+	func2Params(param1(), param2());
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// When To Use Reference Over Pointer and Vice Versa In C++?
+// 5:34:48 
+
+// -> REFERNCE: use in func params and return types.
+//-------------------------------------------
+
+// 1. (optional usage) pass big objects by reference
+#include <iostream>
+using namespace std;
+class BigClass { public: int _data; /* a lot of data */ };
+void funcV(BigClass obj) { } // pass by value - will copy the entire object
+void funcR(BigClass& obj) { obj._data; } // using a reference - to pass the big object by ref 
+void funcP(BigClass* obj) { obj->_data; } // using a pointer - will have to use the arrow operator which is less nice.
+int main() {
+	BigClass obj;
+	funcV(obj);
+	funcR(obj); // pass with reference also allows us to not use the & symbol
+	funcP(&obj);
+	return 0;
+}
+
+// 2. (optional usage) avoid object slicing
+#include <iostream>
+using namespace std;
+
+class Base {
+public: virtual void print() { cout << "base print" << endl; }
+};
+class Derived: public Base {
+public: virtual void print() { cout << "derived print" << endl; }
+};
+void funcV(Base obj) { obj.print(); }  // by val - will slice the object
+void funcR(Base& obj) { obj.print(); } // by ref - will keep the object
+
+int main() {
+	Derived d;
+	funcV(d); // will print the base - object sliced
+	funcR(d); // will print the derived - object maintained
+	return 0;
+}
+
+// 3. (optional usage) modify local vartiable of caller function (common use)
+#include <iostream>
+using namespace std;
+void funcModifyVar(int& val) { val = val+10; }
+int main() {
+	int val = 1;
+	funcModifyVar(val);
+	cout << val << endl;
+	return 0;
+}
+
+// 4. (optional usage) achieve runtime polymorphism in a function (similar to obj slice)
+#include <iostream>
+using namespace std;
+
+class Base {
+public: virtual void print() { cout << "base print" << endl; }
+};
+class Derived: public Base {
+public: virtual void print() { cout << "derived print" << endl; }
+};
+void func(Base& obj) { obj.print(); } // same function can get two varients and call different functions in one line - polymorphism
+
+int main() {
+	Base b; Derived d;
+	func(b); func(d); 
+	return 0;
+}
+
+// 5. essential usage - in copy constructors we MUST use references
+#include <iostream>
+using namespace std;
+
+class Base {
+	int _x;
+public: 
+	Base (int x): _x{x} {}
+	Base (const Base& b): _x{b._x} {}  // copy constructor - must pass the copied object by ref
+	void print() { cout << "x=" << _x << endl; }
+};
+int main() {
+	Base b(5);
+	Base b1 = b;  //call to copy constructor
+	b.print(); b1.print();
+	return 0;
+}
+
+
+// -> POINTERS: use in algorithms and data structures like linked-lists, trees, graphs, etc.
+//-------------------------------------------
+// 1. its possible to put null in a pointer (ref does not allow)
+// 2. its possible to change pointer address (ref pointed address is constant)
+
+
+
+//------------------
+// Which Is Faster pre OR post Increment With Proof In C & C++?
+// 5:43:20 
+// use godbolt.org to analyze the code below in assembly to see the difference
+// basically since we first add to i and then set its value to j, it takes one assembly atom command less.
+//------------------
+#include <iostream>
+using namespace std;
+
+int main() {
+	int i = 10;
+	int j = 20;
+	j = i++; // post-increment
+	j = ++i; // pre-increment
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// Why Copy Constructor Take Argument As Reference?
+// 5:48:36 
+// the reason is very interesting. passing an object by value to a function will incure a copy of the object (pass by value always copy the parameter being passed).
+// a copy constructor must get an instance of an object to use its data to copy.
+// this means that if we pass the object to copy to the copy constructor value, it will incure a copy which means the same copy constructor will be called AGAIN!
+// this will cause an infinite loop 
+//------------------
+#include <iostream>
+using namespace std;
+
+class Foo {
+	int _bar;
+public:
+	Foo() {}
+	Foo(const Foo& obj) { _bar = obj._bar; }
+	//Foo(const Foo obj) { _bar = obj._bar; }  // pass by value will incure a copy which will create an infinite loop..
+	void setBar(int newBar) { _bar = newBar; }
+};
+int main() {
+	Foo f1;
+	f1.setBar(5);
+	Foo f2 = f1;
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// Why Must Define Static Data Member of Class In Cpp File?
+// 5:51:16 
+// -> it will create "multiple definitions" compile time error
+// this is because the "foo.h" header is included twice - in app.cpp and in foo.cpp.
+// these multiple includes will create multiple definitions error
+// the correct way is to declare at the header file and define at the code file
+//------------------
+#include <iostream>
+#include "foo.h"
+using namespace std;
+
+//FILE: app.cpp 
+int main() {
+	Foo obj1, obj2;
+	o1.setNormal(10); // o1 - own memory for normalVariable
+	o2.setNormal(5);  // o2 - own memory for normalVariable
+	// o1 and o2 will have common memory for staticVariable (a trait of static vars)
+	cout << o1.getNormal() << endl;
+	cout << o2.getNormal() << endl;
+	
+	o1.setStatic(60);
+	cout << o2.getStatic() << endl;
+	return 0;
+}
+//FILE: app.cpp END
+
+//FILE: foo.cpp 
+#include "foo.h"
+
+int Foo::staticVariable = 10;  ///*** defining here will avoid the multiple definitions
+
+Foo::Foo() { normalVariable = 0; }
+Foo::Foo(const Foo& obj) { normalVariable = obj.normalVariable; }
+
+void Foo::setNormal(int newVal) { normalVariable = newVal; }
+int Foo::getNormal() { return normalVariable; }
+
+void Foo::setStatic(int newVal) { staticVariable = newVal; }
+int Foo::setStatic() { return staticVariable; }
+//FILE: foo.cpp END
+
+//FILE: foo.h 
+class Foo {
+	int normalVariable;
+	static int staticVariable;
+public:
+	Foo();
+	Foo(const Foo&);
+	void setNormal(int);
+	int getNormal();
+	void setStatic(int);
+	int getStatic();
+};
+
+int Foo::staticVariable = 10; ///*** defining here will create multiple definitions
+
+//FILE: foo.h END
+
+//------------------
+
+
+
+//------------------
+// Why Prefer Pass By Reference Or Pointer Over Pass By Value?
+// 5:54:08 
+// save us from copying big objecs
+//------------------
+#include <iostream>
+#include <vector>
+using namespace std;
+
+#define size 1000
+
+//void foo(vector<int> vec) { // pass the vec by value - make a copy!
+//void foo(vector<int>& vec) {  // this is the correct way - pass the vec by ref
+void foo(const vector<int>& vec) {  // tpass by ref and also make it const. this is good if  the function only read values and do not change anything
+	for (auto v: vec) { 
+		cout << v << ", ";
+	}
+	cout << endl;
+}
+int main() {
+	vector<int> vec(size);
+	for (int i=0; i<size; i++) {
+		vec[i] = i+1;
+	}
+	foo(vec);
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// Why Returning Reference Is Bad Some Time In C++?
+// 5:57:30 
+// -> when returning a reference of a local variable it is not good since the variable will be removed when the function returns, so the reference is meaninigless
+// the code below will result in a compiler error
+//------------------
+#include <iostream>
+using namespace std;
+
+int& func() {
+	int a = 10;
+	return a;
+}
+int main() {
+	int& a = fun();
+	cout << a << endl;
+	return 0;
+}
+
+//the code below will work because we are giving a reference and returning the same reference
+#include <iostream>
+using namespace std;
+
+int& func(int& i) {
+	i += 10;
+	return i;
+}
+int main() {
+	int i = 5;
+	cout << i << endl;
+	int& a = func(i);
+	cout << a << endl;
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// Why Size Of Empty class OR struct Is One In C++?
+// 6:00:23 
+// empty structures and classes size in CPP is NOT ZERO. it is 1! why?
+// this is because if there's nothing to differentiate between instances (i.e. values of members) then the compiler must insert something to differentiate!
+// if we will add a simple integer, the size will be 4 (integer size) and not 5 (integer+1)
+//------------------
+#include <iostream>
+using namespace std;
+struct EmptyS {};
+class EmptyC {};
+int main() {
+	cout << sizeof(EmptyS) << endl;
+	cout << sizeof(EmptyC) << endl;
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// Why Template Functions Only Defined Inside Header Files?
+// 6:04:54 
+// TODO  - what is the reason?
+//------------------
+
+/// in the example below the declaration of the template is on the header, but the definition is on the code file. this will NOT compile.
+/// -> to make it compile we must put the definition as well as the declaration into the header.
+/// but this is unwanted since we mix declaration and definition into the same file!
+/// -> (solution I) one way to solve this we can keep the definition in the code file and simply use "#include" in the header file, right after the declaration.
+/// -> (solution II) another way is to instantiate specific types for the class template so that the compiler won't have to create them and in this process re-create the issue.
+
+
+
+//FILE: foo.h 
+
+#ifndef foo_h
+#define foo_h
+
+#include <iostream>
+/// DECLARATION
+template<typename T> 
+class Foo {
+	T _val;
+public:
+	T getValue();
+	void setValue(T val);
+};
+/// DECLARATION END
+
+///** the DEFINITION should be here so the project will compile
+
+/// (solution I) use include
+#include "foo.cpp"
+
+#endif
+
+//FILE: foo.h END
+
+
+//FILE: foo.cpp 
+
+#include "foo.h"
+/// DEFINITION
+template<typename T> 
+T Foo::getValue() { return _val; }
+void Foo::setValue(T val) { _val = val; }
+/// DEFINITION END
+
+/// (solution II) define class templates with specific types that we are going to be using
+template class Foo<int>;  // define a class template for int type
+template class Foo<float>;  // define a class template for float type
+// ....
+
+
+//FILE: foo.cpp END
+
+
+//FILE: app.cpp 
+#include "foo.h"
+using namespace std;
+int main() {
+	Foo<int> obj;
+	obj.setValue(5);
+	cout << obj.getValue() << endl;
+	return 0;
+}
+//FILE: app.cpp END
+
+
+//------------------
+
+
+
+
+//------------------
+// Why Using Namespace Std Is Bad To Use?
+// 6:11:24
+// -> the question is actually - why putting the line "using namespace std;" and then using "cout" for example, without the namespace prefix "std" ("cout << .." instead of "std::cout << ...")
+// the reason is because we might get a name collision with other libraries that might get included in the future which would have some elements that carry the same names.
+// basically it is a good practice to write everything with the namespace prefix before any call to that namespace, instead of just putting the "using namespace .." clause
+//------------------
+
+// instead of this
+#include <iostream>
+using namespace std;
+int main() {
+	cout << "test" << endl;
+	return 0;
+}
+// do this
+#include <iostream>
+int main() {
+	std::cout << "test" << std::endl;
+	return 0;
+}
+
+//------------------
+
+
+
+
+//------------------
+// Why vector Was Introduced In C++?
+// 6:14:17 
+// -> it is using arrays in conjunction with linkedlists
+//  when a vector has to increase its capacity, a linked list structures is used. increasing capacity using an array structures is not optimized.
+//  when accessing an element at specific index, an array structures is used. using a linkedlist structures to access an element at specific index is not optimized
+// in conclusion, we get the benefits from both data structures
+//------------------
+#include <iostream>
+#include <vector>
+
+int main() {
+	std:vector<int> vec;
+	
+	std::cout
+	return 0;
+}
+//------------------
+
+
+
+//------------------
+// Why We Return Reference from Copy Assignment Operator?
+// 6:16:59 
+// -> this allows us to do assignment chaining 
+//------------------
+#include <iostream>
+using namespace std;
+class Base {
+	int _var;
+public:
+	Base() {}
+	Base(int val): _var{val} {}
+	Base& operator = (const Base& rhs) { 
+		_var = rhs._var;
+		return *this;
+	}
+	void print() { cout << _var << endl; }
+};
+
+int main() {
+	Base b1(10);
+	Base b2, b3, b4;
+	
+	// chaining the assignments.
+	// b4 is set to b1, and b4 ref is returned
+	// b3 is set to b4, and b3 ref is returned
+	// b2 is set to b3, and b2 ref is returned (but the ref is not used - end of chain)
+	b2 = b3 = b4 = b1;
+	// print all 
+	b1.print(); b2.print(); b3.print(); b4.print();
+	
+	return 0;
+}
+//------------------
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
