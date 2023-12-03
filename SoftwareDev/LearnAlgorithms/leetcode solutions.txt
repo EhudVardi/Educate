@@ -1,0 +1,2894 @@
+leetcode
+----------
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/palindrome-number/
+---------------------------------------------------------------------------------------
+
+#include <cmath>
+class Solution {
+public:
+    bool isPalindrome(int x) {
+        if (x<0)
+            return false;
+        if (x==0)
+            return true;
+
+        int lastNum, firstNum;
+
+        int numDigitCount = 1;
+        int divider = 10;
+        while (x / divider > 0)
+        {
+            divider *= 10;
+            numDigitCount++;
+        }
+        int interationCount = numDigitCount/2;
+        for (int i=1; i<=interationCount; i++)
+        {
+            firstNum = x % (int)pow(10,i);
+            lastNum = (x / (int)pow(10,numDigitCount-i))  % 10;
+            if (firstNum != lastNum)
+                return false;
+            //cout << x << ", " << divider << "," << firstNum << "," << lastNum;
+        }
+
+        return true;
+    }
+};
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/string-to-integer-atoi/
+---------------------------------------------------------------------------------------
+
+class Solution {
+public:
+    int myAtoi(string s) {
+        int value = 0;
+        bool sign = true;
+        int len = s.length();
+        bool digitStart = false;
+        int i = 0;
+        while (i < len)
+        {
+            if (digitStart == false)
+            {
+                if (s[i] == '-' || s[i] == '+')
+                {
+                    if (s[i] == '-')
+                        sign = false;
+                    i++;
+                    digitStart = true;
+                }
+                else if (s[i] >= 0x30 && s[i] < 0x3A)
+                    digitStart = true;
+            }
+            if (digitStart == true)
+            {
+                if (s[i] >= 0x30 && s[i] < 0x3A)
+                {
+                    value += (s[i] - 0x30);
+                    value *= 10;
+                }
+                else 
+                    break;
+            }
+            i++;
+        }
+        value /= 10;
+        if (!sign)
+            value = -value;
+
+        return value;
+    }
+};
+
+---------------------------------------------------------------------------------------
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/reverse-integer/
+---------------------------------------------------------------------------------------
+
+class Solution {
+public:
+    int reverse(int x) {
+        int reversed = 0;
+        while (x != 0)
+        {
+            reversed += (x%10);
+            reversed *= 10;
+            x /=10;
+        }
+        reversed /= 10;
+        return reversed;
+    }
+};
+
+---------------------------------------------------------------------------------------
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/longest-substring-without-repeating-characters/
+---------------------------------------------------------------------------------------
+
+#include <iostream>
+#include <unordered_map>
+
+
+class Solution {
+public:
+    int lengthOfLongestSubstring(string s) {
+        
+        int startI = 0;
+        int endI = 0;
+
+        int len = s.length();
+
+        int maxSize = 0;
+
+        std::unordered_map<char, int> charIntMap;
+
+        while (endI < len)
+        {
+            char currC = s[endI];
+            auto it = charIntMap.find(currC);
+            if (it != charIntMap.end()) 
+            {
+                int lastOccuranceI = it->second;
+                maxSize = max(maxSize, endI - lastOccuranceI);
+                it->second = endI;
+                //std::cout << "Key '" << keyToFind << "' exists. Value: " << it->second << std::endl;
+            } 
+            else 
+            {
+                charIntMap[currC] = endI;
+                //std::cout << "Key '" << keyToFind << "' does not exist." << std::endl;
+            }
+            endI++;
+        }
+        return maxSize;
+    }
+};
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/
+---------------------------------------------------------------------------------------
+
+class Solution {
+public:
+    int strStr(string haystack, string needle) {
+        
+        int haystackI = 0;
+        int needleI = 0;
+        int haystackLen = haystack.length();
+        int needleLen = needle.length();
+
+        while (haystackI < haystackLen)
+        {
+            if (haystack[haystackI] == needle[needleI])
+            {
+                if (needleI < needleLen - 1)
+                    needleI++;
+                else
+                    return (haystackI - needleLen + 1);
+            }
+            else
+            {
+                needleI = 0;
+            }
+            haystackI++;
+        }
+        return -1;
+    }
+};
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/divide-two-integers/
+---------------------------------------------------------------------------------------
+
+
+class Solution {
+public:
+    int divide(int dividend, int divisor) {
+        if (divisor == 0)
+            return -1; //error TODO
+        if (dividend == 0)
+            return 0;
+        bool isNegative = true;
+        if ((dividend < 0 && divisor < 0) || (dividend > 0 && divisor > 0))
+            isNegative = false;
+        
+        dividend = abs(dividend);
+        divisor = abs(divisor);
+        int orgDivisor = divisor;
+        int result = 0;
+        while (divisor < dividend)
+        {
+            divisor += orgDivisor;
+            result++;
+        }
+        if (isNegative)
+            result = -result;
+        return result;
+    }
+};
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/jump-game-ii/
+---------------------------------------------------------------------------------------
+
+class Solution {
+public:
+    int jump(vector<int>& nums) {
+        return minJumpRec(nums, 0);
+    }
+
+    int minJumpRec(vector<int>& nums, int currI) {
+        if (currI == nums.size() - 1)
+            return 1;
+        int minJump = INT_MAX - nums.size();
+        for (int i=0; i<nums[currI]; i++)
+        {
+            int nextI = currI + i + 1;
+            if (nextI == nums.size() - 1)
+                return 1;
+            minJump = min(minJump, 1 + minJumpRec(nums, nextI));
+        }
+        return minJump;
+    }
+};
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/rotate-image/
+---------------------------------------------------------------------------------------
+
+
+class Solution {
+public:
+    void rotate(vector<vector<int>>& matrix) {
+        int n = matrix.size();
+        int swap1,swap2,swap3,swap4;
+        for (int i = 0; i < n/2; i++) {
+            for (int j = 0; j < (n-1)/(i+1); j++) {
+                //swap 4
+                // [i][j+i]
+                // [j+i][n-1-i]
+                // [n-1-i][n-1-i-j]
+                // [n-1-i-j][i]
+                swap1 = matrix[i][j+i];
+                swap2 = matrix[j+i][n-1-i];
+                swap3 = matrix[n-1-i][n-1-i-j];
+                swap4 = matrix[n-1-i-j][i];
+                matrix[i][j+i] = swap4;
+                matrix[j+i][n-1-i] = swap1;
+                matrix[n-1-i][n-1-i-j] = swap2;
+                matrix[n-1-i-j][i] = swap3;
+           }
+        }
+    }
+};
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+LINK
+---------------------------------------------------------------------------------------
+
+**chat gpt solution - Kadane's algorithm - O(n)
+
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+
+        int current_max = nums[0];
+        int global_max = nums[0];
+
+        for (int i = 1; i < nums.size(); i++) {
+            current_max = std::max(nums[i], current_max + nums[i]);
+            global_max = std::max(global_max, current_max);
+        }
+
+        return global_max;
+    }
+};
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/rotate-list/
+---------------------------------------------------------------------------------------
+
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* rotateRight(ListNode* head, int k) {
+        ListNode* iteratedNode = head;
+        int listLen = 1;
+        while (iteratedNode->next != NULL)
+        {
+            iteratedNode = iteratedNode->next;
+            listLen++;
+        }
+        k = k % listLen;
+        if (k == 0)
+            return head;
+        ListNode* lastNode = iteratedNode;
+        iteratedNode = head;
+        for (int i=0; i<listLen-k-1; i++)
+            iteratedNode = iteratedNode->next;
+        
+        ListNode* newHeadNode = iteratedNode->next;
+        iteratedNode->next = NULL;
+        lastNode->next = head;
+
+        return newHeadNode;
+    }
+};
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/spiral-matrix/
+---------------------------------------------------------------------------------------
+
+
+class Solution {
+public:
+    std::vector<int> spiralOrder(std::vector<std::vector<int>>& matrix) {
+        int n = matrix.size();
+        int m = matrix[0].size();
+        int top, right, bottom, left;
+
+        top = 0; right = m - 1; bottom = n - 1; left = 0;
+
+        int currX = 0;
+        int currY = 0;
+
+        int direction = 0;  //0=right 1=down 2=left 3=up
+
+        std::vector<int> list;
+
+        while (bottom >= top && right >= left)
+        {
+            list.push_back(matrix[currY][currX]);
+            switch(direction)
+            {
+                case 0: 
+                    if (currX < right) currX++; else { direction = 1; currY++; top++; } break;
+                case 1: 
+                    if (currY < bottom) currY++; else { direction = 2; currX--; right--; } break;
+                case 2: 
+                    if (currX > left) currX--; else { direction = 3; currY--; bottom--; } break;
+                case 3: 
+                    if (currY > top) currY--; else { direction = 0; currX++; left++; } break;
+            }
+        }
+        return list;
+    }
+};
+
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/merge-intervals/
+---------------------------------------------------------------------------------------
+
+
+class Solution {
+public:
+    std::vector<std::vector<int>> merge(std::vector<std::vector<int>>& intervals) {
+        size_t i = 0;
+        while (i < intervals.size() - 1) {
+            if (intervals[i][1] >= intervals[i + 1][0]) {
+                intervals[i][1] = std::max(intervals[i][1], intervals[i + 1][1]);
+                intervals.erase(intervals.begin() + i + 1);
+            } else {
+                i++;
+            }
+        }
+
+        return intervals;
+    }
+};
+
+
+****this version uses for loop instead of while. with <vector> it works fine but with leetcode <stl_vector> it doesn't****
+
+class Solution {
+public:
+    std::vector<std::vector<int>> merge(std::vector<std::vector<int>>& intervals) 
+    {
+        size_t shift = 0;
+        for (size_t i = 0; i < intervals.size() - shift - 1; i++) 
+        {
+            if (intervals[i][1] >= intervals[i+1][0])
+            {
+                intervals[i+1][0] = intervals[i][0];
+                intervals.erase(intervals.begin() + i);
+                shift++; 
+            }
+        }
+
+        return intervals;
+    }
+};
+
+****************************************************************************************************************************
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+LINK
+---------------------------------------------------------------------------------------
+
+***chatgpt solved it with combinatorials...***
+
+f(m, n) = C(m+n-2, m-1) 
+
+C(a, b) = a! / (b! * (a - b)!)
+
+**********************************************
+
+class Solution {
+public:
+    int uniquePaths(int m, int n) {
+        return factorial(m + n - 2) / (factorial(m - 1) * factorial(n - 1));
+    }
+
+    long long factorial(int n) {
+        if (n == 0) return 1;
+        long long result = 1;
+        for (int i = 1; i <= n; i++) {
+            result *= i;
+        }
+        return result;
+    }
+};
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/plus-one/
+---------------------------------------------------------------------------------------
+
+
+class Solution {
+public:
+    vector<int> plusOne(vector<int>& digits) {
+        
+        for (int i=0; i < digits.size(); i++)
+        {
+            int idx = digits.size() - i -1;
+            digits[idx] = (digits[idx]+1)%10;
+            if (digits[idx] > 0)
+                break;
+            else if (idx == 0)
+            {
+                digits.insert(digits.begin(), 1);
+                break;
+            }
+        }
+        return digits;
+    }
+};
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/sqrtx/
+---------------------------------------------------------------------------------------
+
+class Solution {
+public:
+/*
+    //my solution - not efficient enough
+   int mySqrt(int x) {
+        int div1;
+        int div2;
+
+        div1 = 2;
+        div2 = x/div1;
+
+        while (div1 * div2 != x && div1 != div2)
+        {
+            if (div1 * div2 <= x)
+                div1++;
+            else
+                div2--;
+        }
+        return div1;
+    }
+*/
+    //chatgpt solution - binary search
+    int mySqrt(int x) {
+
+        if (x == 0 || x == 1)
+            return x;
+            
+        int left = 1;
+        int right = x;
+        int mid;
+        while (left <= right)
+        {
+            mid = (left + right)/2;
+            if (mid <= x/mid)
+                left = mid+1;
+            else 
+                right = mid -1;
+        }
+        return right;
+    }
+};
+
+---------------------------------------------------------------------------------------
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/set-matrix-zeroes/
+---------------------------------------------------------------------------------------
+
+
+class Solution {
+public:
+    void setZeroes(vector<vector<int>>& matrix) {
+
+        int rows = matrix.size();
+        int columns = matrix[0].size();
+        bool shouldZeroFirstRow = false;
+        bool shouldZeroFirstColumn = false;
+
+        // use first column and row to note which rows and columns should be zeroed
+        for (int i=0; i< rows; i++)
+            for (int j=0; j< columns; j++)
+                if (matrix[i][j] == 0)
+                {
+                    if (i==0 || j==0) // if interating within first row or column
+                    {
+                        if (i==0)
+                            shouldZeroFirstColumn = true;
+                        if (j==0)
+                            shouldZeroFirstRow = true;
+                    }
+                    else
+                    {
+                        matrix[0][j] = 0;
+                        matrix[i][0] = 0;
+                    }
+                }
+        
+        // zero rows and columns using the first row and column notes
+        for (int i=1; i< rows; i++)
+            if (matrix[i][0] == 0)
+                for (int j=1; j< columns; j++)
+                    matrix[i][j] = 0;
+        for (int j=1; j< columns; j++)
+            if (matrix[0][j] == 0)
+                for (int i=1; i< rows; i++)
+                    matrix[i][j] = 0;
+        
+        // zero the entire first row and column if required
+        if (shouldZeroFirstRow)
+            for (int j=0; j< columns; j++)
+                matrix[0][j] = 0;
+        if (shouldZeroFirstColumn)
+            for (int i=0; i< rows; i++)
+                matrix[i][0] = 0;
+    }
+
+};
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/search-a-2d-matrix/
+---------------------------------------------------------------------------------------
+
+** double binary search. really cool algorithm. i got to solve it myself! **
+
+class Solution {
+public:
+    bool searchMatrix(vector<vector<int>>& matrix, int target) {
+
+        int rows = matrix.size();
+        int columns = matrix[0].size();
+        
+        if (target < matrix[0][0] || target > matrix[rows-1][columns-1])
+            return false;
+        
+        int startRowI = 0;
+        int endRowI = rows - 1;
+        int midRowI;
+
+        while (startRowI <= endRowI)
+        {
+            midRowI = (startRowI+endRowI)/2;
+            if (matrix[midRowI][0] == target)
+                return true;
+            else if (matrix[midRowI][0] > target)
+            {
+                endRowI = midRowI - 1;
+            }
+            else
+            {
+                startRowI = midRowI + 1;
+            }
+        }
+        
+        int startColI = 0;
+        int endColI = columns - 1;
+        int midColI;
+        
+        while (startColI <= endColI)
+        {
+            midColI = (startColI+endColI)/2;
+            if (matrix[endRowI][midColI] == target)
+                return true;
+            else if (matrix[endRowI][midColI] > target)
+            {
+                endColI = midColI - 1;
+            }
+            else
+            {
+                startColI = midColI + 1;
+            }
+        }
+
+        if (matrix[endRowI][endColI] == target)
+            return true;
+        else 
+            return false;
+    }
+};
+
+
+
+*** test code (main) ***
+
+    std::vector<std::vector<int>> mat = {
+        {1,3,5,7},
+        {10,11,16,20},
+        {23,30,34,60}
+    };
+    
+    for (int i=0; i<70; i++)
+    {
+        cout<<"\n" << "value " << i << "\tresult: " << searchMatrix(mat, i);
+    }
+
+*************************
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/sort-colors/
+---------------------------------------------------------------------------------------
+
+** chatgpt solved it for me. basically its quicksort algorithm, using pivot point to divid and conquer
+
+#include <iostream>
+#include <vector>
+
+
+using namespace std;
+
+    void swap(vector<int>& nums, int i, int j)
+    {
+        int temp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = temp;
+    }
+    
+    int partition(vector<int>& nums, int startI, int endI) {
+        int pivot = nums[endI];
+        int i = startI - 1;
+
+        for (int j = startI; j < endI; j++) {
+            if (nums[j] < pivot) {
+                i++;
+                swap(nums[i], nums[j]);
+            }
+        }
+
+        swap(nums[i + 1], nums[endI]);
+        return i + 1;
+    }
+
+    void quickSortRec(vector<int>& nums, int startI, int endI) {
+        if (startI >= endI)
+            return;
+
+            int pivotI = partition(nums, startI, endI);
+
+        quickSortRec(nums, startI, pivotI - 1);
+        quickSortRec(nums, pivotI + 1, endI);
+    }
+
+
+    void sort(vector<int>& nums) {
+        quickSortRec(nums, 0, nums.size() - 1);
+    }
+
+    void print(vector<int>& nums) 
+    {
+        for (int i=0; i<nums.size(); i++)
+            cout<<nums[i] << ", ";
+        cout<<"\n";
+    }
+
+int main()
+{
+    cout<<"Hello World";
+
+    std::vector<int> arr = { 2, 0, 2, 1, 1, 0 };
+    
+    print(arr);
+    
+    sort(arr);
+    
+    print(arr);
+    
+    
+    return 0;
+}
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/minimum-window-substring/
+---------------------------------------------------------------------------------------
+
+*** 
+that was super hard but i did it all by myself. 
+the idea is to make a hash table of all desired characters (string t) and the amount of each. then iterate over the source string (string s) and dynamically build a parallel hash table and look for the same desired characters (and their count). if a match found, check if the window is smaller and if so, save it as the minimum window.
+finally return the minimum window, or an empty string if not found
+***
+
+
+#include <unordered_map>
+#include <vector>
+using namespace std;
+class Solution {
+public:
+    string minWindow(string s, string t) {
+        if (s.size() < t.size())
+            return "";
+        if (s == t)
+            return s;
+            
+        int minWinStart = 0;
+        int minWinEnd = s.size() - 1;
+        bool foundMatch = false;
+
+        unordered_map<char, int> reqCounts;
+
+        for (int i=0; i<t.size(); i++) {
+            char currC = t[i];
+            auto it = reqCounts.find(currC);
+            if (it != reqCounts.end()) {
+                it->second++;
+            }
+            else {
+                reqCounts.insert({currC, 1});
+            }
+        }
+    
+        unordered_map<char, vector<int>> reqIdxs;
+
+        unordered_map<char, int> reqIdxsCounts = reqCounts;
+        for (auto& pair : reqIdxsCounts) {
+            pair.second = 0;
+        }
+
+        bool newWindowFound;
+        for (int i=0; i<s.size(); i++) {
+            
+            newWindowFound = false;
+            char currC = s[i];
+
+            auto it = reqCounts.find(currC);
+            if (it != reqCounts.end()) {
+
+                auto it2 = reqIdxs.find(currC);
+                int foundCount;
+                if (it2 != reqIdxs.end()) {
+
+                    (it2->second).push_back(i);
+                    if ((it2->second).size() > it->second) {
+                        (it2->second).erase((it2->second).begin());
+                    }
+                    foundCount = (it2->second).size();
+                    
+                }
+                else {
+                    reqIdxs.insert( {currC, {i }  } );
+                    foundCount = 1;
+                }
+                
+                auto it3 = reqIdxsCounts.find(currC);
+                if (it3 != reqIdxsCounts.end()) {
+                    it3->second = foundCount;
+                }
+                else  { 
+                   //shoud NOT happen
+                }
+                
+                newWindowFound = true;
+            }
+            
+            if (newWindowFound && reqCounts == reqIdxsCounts)
+            {
+                foundMatch = true;
+                int minI = INT_MAX;
+                int maxI = INT_MIN;
+                for (auto& pair : reqIdxs) {
+                    vector<int> idxs = pair.second;
+                    for (int k=0; k<idxs.size(); k++) {
+                        minI = min(minI, idxs[k]);
+                        maxI = max(maxI, idxs[k]);
+                    }
+                }
+                if (maxI >= minI && 
+                    minI > -1 && minI < s.size() && 
+                    maxI > -1 && maxI < s.size()) {
+                    if (maxI - minI < minWinEnd - minWinStart) {
+                        minWinStart = minI;
+                        minWinEnd = maxI;
+                    }
+                }
+            }
+
+        }
+        
+        if  (foundMatch)
+            return s.substr(minWinStart, minWinEnd - minWinStart + 1);
+        else
+            return "";
+    }
+};
+
+
+
+
+****  chatgpt provided a better solution, claiming it is O(n) while my solution is O(n+m)***
+
+#include <vector>
+#include <unordered_map>
+using namespace std;
+
+class Solution {
+public:
+    string minWindow(string s, string t) {
+        unordered_map<char, int> reqCounts;
+        for (char c : t) {
+            reqCounts[c]++;
+        }
+
+        int left = 0, minLen = INT_MAX;
+        int minStart = 0;
+        int requiredChars = t.size();
+
+        for (int right = 0; right < s.size(); right++) {
+            if (reqCounts[s[right]] > 0) {
+                requiredChars--;
+            }
+            reqCounts[s[right]]--;
+
+            while (requiredChars == 0) {
+                if (right - left + 1 < minLen) {
+                    minLen = right - left + 1;
+                    minStart = left;
+                }
+
+                if (reqCounts[s[left]] == 0) {
+                    requiredChars++;
+                }
+                reqCounts[s[left]]++;
+                left++;
+            }
+        }
+
+        return (minLen == INT_MAX) ? "" : s.substr(minStart, minLen);
+    }
+};
+
+
+
+*** i can test both codes against each other by generating many tests and compare results ***
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/gray-code/
+---------------------------------------------------------------------------------------
+** solved on my own, very elegant solution ***
+
+class Solution {
+public:
+    vector<int> grayCode(int n) {
+        if (n==1)
+            return {0,1};
+
+        vector<int> subgraycode = grayCode(n-1);
+        int len = subgraycode.size();
+        int addition = pow(2, n-1);
+
+        for (int i=len-1; i>=0; i--)
+            subgraycode.push_back(subgraycode[i]+addition);
+        
+        return subgraycode;
+    }
+};
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/interleaving-string/
+---------------------------------------------------------------------------------------
+
+
+***  chatgpt solved in words, i created the code. the complexity is n*m. i thought it can be faster. ***
+*** i should always try first to solve it with the full algorithm ***
+
+****************************************************************************************************************
+Building a 2D array (dynamic programming table) to determine if a string s3 is an interleaving of two strings s1 and s2 involves constructing a table where each cell (i, j) represents whether the first i characters of s1 and the first j characters of s2 can be interleaved to form the first i + j characters of s3. Here's a general approach:
+
+Create a 2D boolean array dp with dimensions (lenS1 + 1) x (lenS2 + 1), where lenS1 is the length of s1 and lenS2 is the length of s2.
+
+Initialize the first row and the first column of the dp array as follows:
+
+dp[i][0] represents whether the first i characters of s1 can interleave to form the first i characters of s3.
+dp[0][j] represents whether the first j characters of s2 can interleave to form the first j characters of s3.
+Initialize dp[0][0] as true because empty strings can be interleaved to form another empty string.
+Use a nested loop to iterate through the dp array. At each cell (i, j):
+
+If s1[i-1] matches s3[i+j-1], set dp[i][j] to dp[i-1][j]. This means that if the current character in s1 matches s3, you can use the previous characters from s1 and s2 to form the current substring in s3.
+If s2[j-1] matches s3[i+j-1], set dp[i][j] to dp[i][j-1]. This means that if the current character in s2 matches s3, you can use the previous characters from s1 and s2 to form the current substring in s3.
+Finally, the bottom-right cell of the dp array (dp[lenS1][lenS2]) will indicate whether s3 can be formed by interleaving s1 and s2. If it's true, s3 is an interleaving of s1 and s2.
+
+The time complexity of this dynamic programming approach is O(lenS1 * lenS2), which is acceptable for the given constraints. It ensures that you correctly check for the proper interleaving of the strings s1 and s2 to form s3.
+****************************************************************************************************************
+
+
+class Solution {
+public:
+    bool isInterleave(string s1, string s2, string s3) {
+        int lenS1 = s1.size();
+        int lenS2 = s2.size();
+        int lenS3 = s3.size();
+        if (lenS1 + lenS2 != lenS3)
+            return false;
+        
+        vector<vector<bool>> dynMat(lenS1+1, vector<bool>(lenS2+1, false));
+
+        dynMat[0][0] = true;
+
+        bool canInterleaveS1 = (s1[0] == s3[0]);
+        for (int i=1; i<dynMat.size(); i++)
+            dynMat[i][0] = canInterleaveS1;
+
+        bool canInterleaveS2 = (s2[0] == s3[0]);
+        for (int j=1; j<dynMat[0].size(); j++)
+            dynMat[0][j] = canInterleaveS2;
+        
+        for (int i=1; i<dynMat.size(); i++) {
+            for (int j=1; j<dynMat[0].size(); j++) {
+                if (s1[i-1] == s3[i+j-1])
+                    dynMat[i][j] = dynMat[i-1][j];
+                if (s2[j-1] == s3[i+j-1])
+                    dynMat[i][j] = dynMat[i][j-1];
+            }
+        }
+
+        return dynMat[dynMat.size()-1][dynMat[0].size()-1];
+    }
+};
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/validate-binary-search-tree/
+---------------------------------------------------------------------------------------
+
+*** my first attempt was corrected by chatgpt. i did not propagated the min and max correctly ***
+
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    bool isValidBST(TreeNode* root) {
+        return (traverse(root, INT_MIN, INT_MAX));
+    }
+
+    bool traverse(TreeNode* node, int min, int max) {
+        if (node == NULL)
+            return true;
+        if (node->val < min || node->val > max)
+            return false;
+        return (traverse(node->right, node->val, max) &&
+                traverse(node->left, min, node->val));
+    }
+};
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/binary-tree-level-order-traversal/
+---------------------------------------------------------------------------------------
+
+**** simple travesing and collecting information. i think i understand pointer a bit better now. should learn even more ***
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        vector<vector<int>> vec;
+        traverse(root, 0, &vec);
+        return vec;
+    }
+
+    void traverse(TreeNode* node, int depth, vector<vector<int>>* vec) {
+        if (node == NULL)
+            return;
+        
+        vector<vector<int>>& vector = *vec;
+            
+        if (depth + 1 > vector.size())
+                vector.push_back({});
+            
+        vector[depth].push_back(node->val);
+            
+        traverse(node->left, depth+1, vec);
+        traverse(node->right, depth+1, vec);
+
+        return;
+    }
+};
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/path-sum-ii/
+---------------------------------------------------------------------------------------
+
+*** easy dfs alg. chatgpt report full efficiency ***
+
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<vector<int>> pathSum(TreeNode* root, int targetSum) {
+        vector<vector<int>> results;
+        pathSumRec(root, targetSum, 0, {}, &results);
+        return results;
+    }
+
+
+    void pathSumRec(TreeNode* node, int targetSum, int sumSoFar, vector<int> pathResults, vector<vector<int>>* results) {
+        pathResults.push_back(node->val);
+        sumSoFar += node->val;
+        if (node->left == NULL && node->right == NULL) {
+            if (sumSoFar == targetSum)
+                (*results).push_back(pathResults);
+            return;
+        }
+        if (node->left != NULL)
+            pathSumRec(node->left, targetSum, sumSoFar, pathResults, results);
+        if (node->right != NULL)
+            pathSumRec(node->right, targetSum, sumSoFar, pathResults, results);
+    }
+};
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/flatten-binary-tree-to-linked-list/
+---------------------------------------------------------------------------------------
+
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    void flatten(TreeNode* root) {
+        if (root == NULL)
+            return;
+        flatten(root->right);
+        flatten(root->left);
+        if (root->left != NULL)
+        {
+            TreeNode* tempRight = root->right;
+            root->right = root->left;
+            root->left = NULL;
+            TreeNode* edgeNode = root->right;
+            while (edgeNode->right != NULL)
+                edgeNode = edgeNode->right;
+            edgeNode->right = tempRight;
+        }
+    }
+};
+
+
+**** i gave my idea to chatgpt to help optimize - when searching for the last node to reconnect to (edgeNode), i can simply always return that last node with a new recursive function and so i can save that re-traversing. chatgpt says it reduces computation as well as space complexity **
+
+
+class Solution {
+public:
+    TreeNode* flatten(TreeNode* root) {
+        if (root == nullptr)
+            return nullptr;
+        
+        TreeNode* leftLast = flatten(root->left);
+        TreeNode* rightLast = flatten(root->right);
+        
+        if (leftLast) {
+            leftLast->right = root->right;
+            root->right = root->left;
+            root->left = nullptr;
+        }
+        
+        if (rightLast) {
+            return rightLast;
+        }
+        if (leftLast) {
+            return leftLast;
+        }
+        
+        return root;
+    }
+};
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/pascals-triangle/
+---------------------------------------------------------------------------------------
+
+** again, had trouble with pointers. in "generateRec" i've casted "triangle"  into  a "vector<vector<int>>"  and it would not update as the object that was pointed to **
+
+class Solution {
+public:
+    vector<vector<int>> generate(int numRows) {
+        vector<vector<int>> triangle;
+        generateRec(&triangle, numRows);
+        return triangle;
+    }
+    void generateRec(vector<vector<int>>* triangle, int numRows) {
+        
+        if (numRows == 1) {
+            (*triangle).push_back({1});
+            return;
+        }
+        
+        generateRec(triangle, numRows-1);
+        
+        vector<int> newVector(numRows, 0);
+        vector<int> last = (*triangle)[(*triangle).size() - 1];
+        
+        newVector[0] = newVector[numRows-1] = 1;
+        for (int i=1; i<numRows-1; i++)
+            newVector[i] = last[i-1] + last[i];
+            
+        (*triangle).push_back(newVector);
+        
+        return;
+    }
+};
+
+
+*** way more elegant solution without pointers and without recursive calls. basically, treating the problem as a matrix, as i should have from the begining ***
+
+class Solution {
+public:
+    vector<vector<int>> generate(int numRows) {
+        
+        vector<vector<int>> triangle(numRows, vector<int>());
+
+        triangle[0].push_back(1);
+        for (int i=1; i<numRows; i++) {
+            triangle[i].push_back(1);
+            for (int j=1; j<i; j++) {
+                triangle[i].push_back(triangle[i-1][j-1]+triangle[i-1][j]);
+            }
+            triangle[i].push_back(1);
+        }
+        
+        return triangle;
+    }
+};
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/triangle/
+---------------------------------------------------------------------------------------
+
+** i've missed the constraint that the move can be to just adjecent cells. i've implemented binary search when it was not required. chatgpt indicated my misunderstanding and solve it faster ***
+
+class Solution {
+public:
+    int minimumTotal(vector<vector<int>>& triangle) {
+        int numRows = triangle.size();
+        vector<vector<int>> dp(numRows, vector<int>());
+        dp[numRows - 1] = triangle[numRows - 1]; // Initialize the bottom row.
+
+        for (int row = numRows - 2; row >= 0; row--) {
+            for (int i = 0; i < triangle[row].size(); i++) {
+                dp[row].push_back(triangle[row][i] + min(dp[row + 1][i], dp[row + 1][i + 1]));
+            }
+        }
+
+        return dp[0][0];
+    }
+};
+
+
+*** my solution - multiple binary search ***
+
+class Solution {
+public:
+    int minimumTotal(vector<vector<int>>& triangle) {
+        int minSum = triangle[0][0];
+        for (int i=1; i<triangle.size(); i++) {
+            minSum += BS_min(triangle[i], 0, triangle[i].size()-1);
+        }
+        return minSum;
+    }
+
+    int BS_min(vector<int>& arr, int left, int right) {
+        if (left == right)
+            return arr[left];
+        int mid = (left+right)/2;
+        return min(BS_min(arr, left, mid),BS_min(arr, mid+1, right));
+    }
+};
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/
+---------------------------------------------------------------------------------------
+
+*** easy... ***
+
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+       int totalProfit = 0;
+       int i = 0;
+       while (i < prices.size()-1) {
+           if (prices[i] < prices[i+1]) {
+               totalProfit += prices[i+1] - prices[i];
+           }
+           i++;
+       }
+       return totalProfit;
+    }
+};
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/sum-root-to-leaf-numbers/
+---------------------------------------------------------------------------------------
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int sumNumbers(TreeNode* root) {
+        int totalSum = 0;
+        sumNumbersRec(root, 0, &totalSum);
+        return totalSum;
+    }
+
+    void sumNumbersRec(TreeNode* node, int num, int* totalSum) {
+        if (node->left == NULL && node->right == NULL){
+            *(totalSum) += node->val + 10*num;
+            return;
+        }
+        if (node->left != NULL)
+            sumNumbersRec(node->left, node->val + 10*num, totalSum);
+        if (node->right != NULL)
+            sumNumbersRec(node->right, node->val + 10*num, totalSum);
+    }
+};
+
+
+
+
+***** chatgpt of course solved it without pointers ****
+
+class Solution {
+public:
+    int sumNumbers(TreeNode* root) {
+        return sumNumbersRec(root, 0);
+    }
+
+    int sumNumbersRec(TreeNode* node, int num) {
+        if (node == nullptr) {
+            return 0;
+        }
+
+        num = num * 10 + node->val;
+
+        if (node->left == nullptr && node->right == nullptr) {
+            return num;
+        }
+
+        int leftSum = sumNumbersRec(node->left, num);
+        int rightSum = sumNumbersRec(node->right, num);
+
+        return leftSum + rightSum;
+    }
+};
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/single-number-ii/
+---------------------------------------------------------------------------------------
+
+#include <unordered_map>
+
+class Solution {
+public:
+    int singleNumber(vector<int>& nums) {
+        int len = nums.size();
+        unordered_map<int, int> numOccurances;
+
+        for (int i=0; i<len; i++) {
+            auto it = numOccurances.find(nums[i]);
+            if (it != numOccurances.end()) {
+                if (it->second == 2) 
+                    numOccurances.erase(it->first);
+                else 
+                    it->second++;
+            }
+            else {
+                numOccurances[nums[i]] = 1;
+            }
+        }
+        return numOccurances.begin()->first;
+    }
+};
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/reorder-list/
+---------------------------------------------------------------------------------------
+
+** had to hard debug to understand what was wrong. took me some time to solve. **
+
+class Solution {
+public:
+    void reorderList(ListNode* head) {
+        
+        ListNode* subHead = head;
+        ListNode* tailHead;
+        ListNode* tailTail;
+        while (subHead != NULL && subHead->next != NULL) {
+            tailHead = subHead->next;
+            tailTail = tailHead;
+            ListNode* tailTailLast = tailTail;
+            while (tailTailLast->next != NULL) {
+                tailTail = tailTailLast;
+                tailTailLast = tailTailLast->next;
+            }
+            if (tailTailLast == tailTail)
+                break;
+            tailTail->next = NULL;
+            subHead->next = tailTailLast;
+            tailTailLast->next = tailHead;
+            subHead = tailHead;
+        }
+    }
+    
+    void print(ListNode* head) {
+        while (head != NULL) {
+            cout << head->val << ",";
+            head = head->next;
+        }
+        cout << "\n";
+    }
+};
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/copy-list-with-random-pointer/
+---------------------------------------------------------------------------------------
+
+** bard tells me my solution is very good. im happy **
+
+/*
+// Definition for a Node.
+class Node {
+public:
+    int val;
+    Node* next;
+    Node* random;
+    
+    Node(int _val) {
+        val = _val;
+        next = NULL;
+        random = NULL;
+    }
+};
+*/
+
+#include <unordered_map>
+#include <vector>
+
+class Solution {
+public:
+    Node* copyRandomList(Node* head) {
+
+        unordered_map<Node*, int> nodePtrToIdx;
+        Node* nodeIterator;
+
+        vector<Node*> clonedNodesVector;
+
+        nodeIterator = head;
+        int idx = 0;
+        while (nodeIterator != NULL) {
+            clonedNodesVector.push_back(new Node(nodeIterator->val));
+            nodePtrToIdx[nodeIterator] = idx;
+            idx++;
+            nodeIterator = nodeIterator->next;
+        }
+
+        for (int i=0; i<clonedNodesVector.size()-1; i++)
+            clonedNodesVector[i]->next = clonedNodesVector[i+1];
+        
+        nodeIterator = head;
+        idx = 0;
+        while (nodeIterator != NULL) { 
+            if (nodeIterator->random != NULL)
+                clonedNodesVector[idx]->random = clonedNodesVector[nodePtrToIdx[nodeIterator->random]];
+            idx++;
+            nodeIterator = nodeIterator->next;
+        }
+        
+        return clonedNodesVector[0];
+    }
+};
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/linked-list-cycle-ii/
+---------------------------------------------------------------------------------------
+
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+#include <unordered_map>
+class Solution {
+public:
+    ListNode *detectCycle(ListNode *head) {
+        unordered_map<ListNode*, int> traversedNodes;
+        ListNode* iteratedNode = head;
+        int idx = 0;
+        while (iteratedNode != NULL) {
+            auto it = traversedNodes.find(iteratedNode);
+            if (it != traversedNodes.end())
+                return it->first;
+            traversedNodes[iteratedNode] = idx;
+            iteratedNode = iteratedNode->next;
+            idx++;
+        }
+        return NULL;
+    }
+};
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/lru-cache/
+---------------------------------------------------------------------------------------
+
+#include <unordered_map>
+
+class LRUCache {
+private:
+  unordered_map<int, int> cacheMap;
+public:
+    LRUCache(int capacity) {
+        cacheMap = unordered_map<int, int>(capacity);
+    }
+    
+    int get(int key) {
+        auto it = cacheMap.find(key);
+        if (it != cacheMap.end()) {
+            // * remove the key and value from the cache and then add it again, so it will be the "last" in the cache.
+            // when put will be called and the capacity will reach, that value will be the last and so it will be found and removed, as required by definition of the problem.
+            int value = it->second;
+            cacheMap.erase(it->first);
+            cacheMap[key] = value;
+            return value;
+        }
+        else
+            return -1;
+    }
+    
+    void put(int key, int value) {
+        if (cacheMap.bucket_count() == cacheMap.size()) {
+            // find the last element, that it will be the last element that was accessed by "put", and remove it to clear space in the cache
+            auto lastElement = cacheMap.begin();
+            for (auto iter = cacheMap.begin(); iter != cacheMap.end(); ++iter)
+                lastElement = iter;
+            cacheMap.erase(lastElement->first);
+        }
+        cacheMap[key] = value;
+    }
+};
+
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * LRUCache* obj = new LRUCache(capacity);
+ * int param_1 = obj->get(key);
+ * obj->put(key,value);
+ */
+ 
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/max-points-on-a-line/
+---------------------------------------------------------------------------------------
+
+** simple geometrics. find all lines then find which points lays on which line and count the max. ** 
+
+#include <unordered_set>
+#include <utility>
+#include <vector>
+
+// Hash function for std::pair<int, int>
+struct pair_hash {
+    template <class T1, class T2>
+    size_t operator () (const pair<T1, T2>& p) const {
+        auto h1 = hash<T1>{}(p.first);
+        auto h2 = hash<T2>{}(p.second);
+
+        // Combine the hash values
+        return h1 ^ h2;
+    }
+};
+
+class Solution {
+public:
+    int maxPoints(vector<vector<int>>& points) {
+        
+		unordered_set<pair<int, int>, pair_hash> AllFormedLines;
+		int a,b,x1,y1,x2,y2;
+		// create all possible lines
+		for (int i=0; i<points.size(); i++) {
+			for (int j=i+1; j<points.size(); j++) {
+				
+				x1=points[i][0]; y1=points[i][1]; x2=points[j][0]; y2=points[j][1]; 
+				if (x1 == x2) continue; // skip infinite a values;
+				a = (y2-y1)/(x2-x1);
+				b = y1-a*x1;
+				
+				AllFormedLines.insert(make_pair(a, b));
+			}
+		}
+		// Iterate over all found lines and count how many points lays on that line
+		int maxPointsRelatedToAline = 0;
+		int tempMax;
+		for (auto& entry : AllFormedLines) {
+			tempMax = 0;
+			a=entry.first;
+			b=entry.second;
+			for (int i=0; i<points.size(); i++) {
+				x1=points[i][0]; y1=points[i][1];
+				if (y1 == a*x1+b){
+					tempMax++;
+				}
+			}
+			maxPointsRelatedToAline = max(maxPointsRelatedToAline, tempMax);
+		}
+		return maxPointsRelatedToAline;
+	}
+};
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/sort-list/
+---------------------------------------------------------------------------------------
+
+***** my solution although runs at O(nlogn) still uses a space of O(n). ****
+
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+#include <map>
+class Solution {
+public:
+    ListNode* sortList(ListNode* head) {
+        
+        if (head == NULL)
+            return NULL;
+        
+        map<int, ListNode*> sortedNodes;
+        while (head != NULL) {
+            sortedNodes[head->val] = head;
+            head = head->next;
+        }
+        ListNode* iteratedNode;
+        ListNode* iteratedNodeNext;
+
+        // Iterate over the map tow elements at a time using two iterators and the "next" and "prev" functions.
+        auto it = sortedNodes.begin();
+        auto end = sortedNodes.end();
+        head = it->second;
+
+        for (; it != prev(end); ++it) {
+            iteratedNode = it->second;
+            auto nextIt = next(it);
+            iteratedNodeNext = nextIt->second;
+            iteratedNode->next = iteratedNodeNext;
+            iteratedNodeNext->next = NULL;
+        }
+
+        return head;
+    }
+};
+
+
+******  chatgpt generated an amazing algorithm that does not require a hash map and instead uses merge-sort in a bottom up fasion.  this saves the extra O(n) space ****
+
+*******
+
+Merge Sort: Merge Sort is a popular algorithm for sorting linked lists. It has a time complexity of O(n logn). You can implement a bottom-up merge sort approach for the linked list.
+
+Divide and Conquer: In Merge Sort, you divide the list into halves until you have sublists of size 1, then merge them back together in a sorted manner. The merge operation is the key to achieving a sorted list.
+
+Find Middle: You'll need to find the middle of the linked list. You can use the slow and fast pointers approach to find the middle efficiently.
+
+In-Place Merge: When merging two sorted linked lists, try to do it in-place without using extra space. This means adjusting the pointers of the existing nodes rather than creating new nodes.
+
+Constant Space: In the end, ensure that your algorithm uses O(1) memory space, meaning you are not creating new nodes for the sorted list.
+
+*********
+
+
+struct ListNode {
+    int val;
+    ListNode* next;
+    ListNode(int x) : val(x), next(nullptr) {}
+};
+
+class Solution {
+public:
+    ListNode* sortList(ListNode* head) {
+        if (!head || !head->next) {
+            return head;  // Already sorted (or empty) list
+        }
+
+        int length = getLength(head);
+
+        // Perform bottom-up merge sort
+        for (int size = 1; size < length; size *= 2) {
+            ListNode* dummy = new ListNode(0);
+            dummy->next = head;
+            ListNode* tail = dummy;
+
+            while (tail->next) {
+                ListNode* left = tail->next;
+                ListNode* right = split(left, size);
+                tail->next = merge(left, right);
+                while (tail->next) {
+                    tail = tail->next;
+                }
+            }
+
+            head = dummy->next;
+            delete dummy;
+        }
+
+        return head;
+    }
+
+private:
+    int getLength(ListNode* head) {
+        int length = 0;
+        while (head) {
+            length++;
+            head = head->next;
+        }
+        return length;
+    }
+
+    ListNode* split(ListNode* head, int size) {
+        if (!head) {
+            return nullptr;
+        }
+
+        for (int i = 1; i < size && head->next; ++i) {
+            head = head->next;
+        }
+
+        ListNode* right = head->next;
+        head->next = nullptr;
+        return right;
+    }
+
+    ListNode* merge(ListNode* left, ListNode* right) {
+        ListNode* dummy = new ListNode(0);
+        ListNode* tail = dummy;
+
+        while (left && right) {
+            if (left->val < right->val) {
+                tail->next = left;
+                left = left->next;
+            } else {
+                tail->next = right;
+                right = right->next;
+            }
+            tail = tail->next;
+        }
+
+        tail->next = left ? left : right;
+
+        ListNode* result = dummy->next;
+        delete dummy;
+
+        return result;
+    }
+};
+
+
+
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/find-minimum-in-rotated-sorted-array-ii/
+---------------------------------------------------------------------------------------
+
+*** my solution uses the splitting method. the complexity is still O(n) ***
+
+class Solution {
+public:
+    int findMin(vector<int>& nums) {
+        int startIdx = findMinSplitRec(nums, 0, nums.size()-1);
+        if (startIdx != -1) {
+            return nums[startIdx];
+        } else { //should not happen since the array must be sorted so the return condition must be met at some point
+            return -1;
+        }
+    }
+
+    int findMinSplitRec(vector<int>& nums, int start, int end) {
+        if (start == end) {
+            // find left and right indexes. use if statments to save the % (reminder) operator that most of the time should not be applied.
+            int left = start-1;
+            int right = start+1;
+            if (left < 0)
+                left = nums.size()-1;
+            else if (right == nums.size())
+                right = 0;
+            // the condition to find the start index is that on the right the number can be equal or above, and also on the left the number must be greater.
+            if (nums[right] >= nums[start] && nums[left] > nums[start])
+                return start;
+            else
+                return -1;
+        }
+        // split on the left subarray, return immediately if found (without testing the right subarray)
+        int mid = (start+end)/2;
+        int leftRes = findMinSplitRec(nums, start, mid);
+        if (leftRes != -1)
+            return leftRes;
+        // split on the right subarray, return immediately if found (without testing the right subarray)
+        int rightRes = findMinSplitRec(nums, mid+1, end);
+        if (rightRes != -1)
+            return rightRes;
+        // not found - should not happen considering the constraints
+        return -1;
+    }
+};
+
+
+****  I've suggested chatgpt to improve in case of duplicates. the solution it generated was cool but failed the tests.
+I've come up with a better solution that checks for duplicates before the recursive calls ***
+
+class Solution {
+public:
+    int findMin(vector<int>& nums) {
+        int startIdx = findMinSplitRec(nums, 0, nums.size()-1);
+        if (startIdx != -1) {
+            return nums[startIdx];
+        } else { //should not happen since the array must be sorted so the return condition must be met at some point
+            return -1;
+        }
+    }
+
+    int findMinSplitRec(vector<int>& nums, int start, int end) {
+        if (start == end) {
+            // find left and right indexes. use if statments to save the % (reminder) operator that most of the time should not be applied.
+            int left = start-1;
+            int right = start+1;
+            if (left < 0)
+                left = nums.size()-1;
+            else if (right == nums.size())
+                right = 0;
+            // the condition to find the start index is that on the right the number can be equal or above, and also on the left the number must be greater.
+            if (nums[right] >= nums[start] && nums[left] > nums[start])
+                return start;
+            else
+                return -1;
+        }
+        // split on the left subarray, return immediately if found (without testing the right subarray)
+        int mid = (start+end)/2;
+        while (start < mid && nums[start] == nums[start+1]) start++;
+        while (start < mid && nums[mid] == nums[mid-1]) mid--;
+        int leftRes = findMinSplitRec(nums, start, mid);
+        if (leftRes != -1)
+            return leftRes;
+        // split on the right subarray, return immediately if found (without testing the right subarray)
+        while (mid+1 < end && nums[mid+1] == nums[mid+1+1]) mid++;
+        while (mid+1 < end && nums[end] == nums[end-1]) end--;
+        int rightRes = findMinSplitRec(nums, mid+1, end);
+        if (rightRes != -1)
+            return rightRes;
+        // not found - should not happen considering the constraints
+        return -1;
+    }
+};
+
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/compare-version-numbers/
+---------------------------------------------------------------------------------------
+
+** my first solution. **
+
+class Solution {
+public:
+    int compareVersion(string version1, string version2) {
+        
+        int revision = 0;
+        int currRevVal1, currRevVal2;
+        int ver1I, ver2I, ver1Len, ver2Len;
+        ver1Len = version1.size(); ver2Len = version2.size();
+        ver1I = ver2I = 0;
+        currRevVal1 = currRevVal2 = 0;
+        while ((ver1I < ver1Len || ver2I < ver2Len) && revision < 3) {
+            if (version1[ver1I] != '.') {
+                currRevVal1 = 10*currRevVal1+(version1[ver1I++]-'0');
+            }
+            if (version2[ver2I] != '.') {
+                currRevVal2 = 10*currRevVal2+(version2[ver2I++]-'0');
+            }
+
+            if ((ver1I == ver1Len || version1[ver1I] == '.') &&
+                (ver2I == ver2Len || version2[ver2I] == '.')) {
+                    if (currRevVal1 < currRevVal2) {
+                        return -1;
+                    } else if (currRevVal1 > currRevVal2) {
+                        return 1;
+                    } else {
+                        revision++;
+                        currRevVal1 = currRevVal2 = 0;
+                    }
+                } 
+
+        }
+
+        return 0;
+    }
+};
+
+
+*** improvement in conditions, remove requirement of counting revisions ****
+
+
+class Solution {
+public:
+    int compareVersion(string version1, string version2) {
+        
+        int currRevVal1, currRevVal2;
+        int ver1I, ver2I, ver1Len, ver2Len;
+        ver1Len = version1.size(); ver2Len = version2.size();
+        ver1I = ver2I = 0;
+        currRevVal1 = currRevVal2 = 0;
+        while ((ver1I < ver1Len || ver2I < ver2Len)) {
+            currRevVal1 = currRevVal2 = 0;
+
+            while (ver1I < ver1Len && version1[ver1I] != '.' )
+                currRevVal1 = 10*currRevVal1+(version1[ver1I++]-'0');
+            while (ver2I < ver2Len && version2[ver2I] != '.')
+                currRevVal2 = 10*currRevVal2+(version2[ver2I++]-'0');
+
+            if (currRevVal1 < currRevVal2)
+                return -1;
+            else if (currRevVal1 > currRevVal2)
+                return 1;
+            
+            if (ver1I < ver1Len) 
+                ver1I++;
+            if (ver2I < ver2Len) 
+                ver2I++;
+        }
+
+        return 0;
+    }
+};
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/fraction-to-recurring-decimal/
+---------------------------------------------------------------------------------------
+
+
+*** a good solution that catches repeating patterns only if they start from the decimal point and on. ***
+
+
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <random>
+
+using namespace std;
+
+class Solution {
+public:
+    string fractionToDecimal(int numerator, int denominator) {
+        
+        string result;
+        int num, divide, reminder;
+        num = numerator;
+        
+        divide = num/denominator;
+        reminder = num%denominator;
+        result = to_string(divide);
+        
+        if (reminder != 0) {
+            int firstReminder = reminder;
+            
+            result += ".";
+            
+            ostringstream formattedStringStream;
+            int stringLen = 1;
+            bool isFractionRepeats = false;
+            while (stringLen < 10000) {
+                
+                num = reminder*10;
+                divide = num/denominator;
+                reminder = num%denominator;
+                
+                formattedStringStream << divide;
+                stringLen++;
+                
+                if (reminder == 0)
+                    break;
+                if (reminder == firstReminder) {
+                    isFractionRepeats = true;
+                    break;
+                }
+            }
+            
+            if (isFractionRepeats)
+                result += "(" + formattedStringStream.str() + ")";
+            else 
+                result += formattedStringStream.str();
+            
+        }
+            
+        return result;
+    }
+};
+
+
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/excel-sheet-column-title/
+---------------------------------------------------------------------------------------
+
+** my first solution, doesnt work for cases like 52 -> i get B@
+
+class Solution {
+public:
+    string convertToTitle(int columnNumber) {
+        ostringstream formattedStringStream;
+        int dividen = columnNumber;
+        while (dividen > 26) {
+            formattedStringStream << char((dividen / 26) + '@');
+            dividen = dividen % 26;
+        }
+        formattedStringStream << char(dividen + '@');
+        return formattedStringStream.str();
+    }
+};
+
+
+** using suggestion from chatgpt, i used a different approach, reversing the string at the end. this simplified the process and it also correct **
+
+#include <sstream>
+#include <algorithm>
+
+class Solution {
+public:
+    string convertToTitle(int columnNumber) {
+        ostringstream formattedStringStream;
+        int dividen = columnNumber;
+        while (dividen > 0) {
+            dividen--;
+            formattedStringStream << char((dividen % 26) + 'A');
+            dividen = dividen / 26;
+        }
+        string result = formattedStringStream.str();
+        reverse(result.begin(), result.end());  // Reverse the string to get the correct order
+        return result;
+    }
+};
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/excel-sheet-column-number/
+---------------------------------------------------------------------------------------
+
+** easy.. **
+
+class Solution {
+public:
+    int titleToNumber(string columnTitle) {
+        
+        int len = columnTitle.size();
+        int result = 0;
+        int i = 0;
+        while (i < len) {
+            result *= 26;
+            result += columnTitle[i] - '@';
+            i++;
+        }
+        return result;
+    }
+};
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/dungeon-game/
+---------------------------------------------------------------------------------------
+
+** either it was easy or i got good in the area **
+
+class Solution {
+public:
+    int calculateMinimumHP(vector<vector<int>>& dungeon) {
+        int minHP = INT_MAX-1;
+        traverseRec(dungeon, 0, 0, 0, &minHP);
+        return minHP+1;
+    }
+
+    void traverseRec(vector<vector<int>>& dungeon, int i, int j, int sum, int* minHP) {
+        
+        if (i == dungeon.size() || j == dungeon[0].size())
+            return;
+        
+        sum -= dungeon[i][j];
+        
+        if (i == dungeon.size()-1 && j == dungeon[0].size()-1) {
+            if (sum >= 0)
+                *minHP = min(*minHP, sum);
+            return;
+        }
+
+        traverseRec(dungeon, i+1, j, sum, minHP);
+        traverseRec(dungeon, i, j+1, sum, minHP);
+    }
+};
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/repeated-dna-sequences/
+---------------------------------------------------------------------------------------
+
+*** my first solution ***
+
+
+#include <unordered_map>
+#include <string>
+
+class Solution {
+public:
+    vector<string> findRepeatedDnaSequences(string s) {
+        int len = s.size();
+        unordered_map<string, int> subseqs;
+        vector<string> repeatingSeqs;
+        for (int i=0; i<len-10; i++) {
+            string substr = s.substr(i,10);
+            auto it = subseqs.find(substr);
+            if (it != subseqs.end())
+                subseqs[substr]++;
+            else
+                subseqs[substr] = 1;
+        }
+        
+        for (auto it = subseqs.begin(); it != subseqs.end(); ++it)
+            if (it->second > 1)
+                repeatingSeqs.push_back(it->first);
+
+        return repeatingSeqs;
+    }
+};
+
+
+*** i asked chatgpt how can i improve on the fact that each char can have 4 values only -> it suggested to use 2bits for each char ***
+
+***** this is my version of the improved solution *****
+
+#include <unordered_map>
+#include <string>
+
+class Solution {
+private:
+    int _stringToBits(string str) {
+        int bits = 0;
+        for (int i=0; i<10; i++)
+            bits |= (_charTo2BitsInteger(str[i]) << (i*2));
+        return bits;
+    }
+    string _bitsToString(int bits) {
+        string str;
+        for (int i=0; i<10; i++)
+            str[i] = _2BitsIntegerTochar((bits >> (i*2)) & 0x3);
+        str[10] = NULL;
+        return str;
+    }
+
+    int _charTo2BitsInteger(char c) {
+        switch (c) {
+            case 'A': return 0;
+            case 'C': return 1;
+            case 'G': return 2;
+            case 'T': return 3;
+        }
+        return -1; //shoud not happend!
+    }
+    char _2BitsIntegerTochar(int n) {
+        switch (n) {
+            case 0: return 'A';
+            case 1: return 'C';
+            case 2: return 'G';
+            case 3: return 'T';
+        }
+        return 'x'; //shoud not happend!
+    }
+
+public:
+    vector<string> findRepeatedDnaSequences(string s) {
+        int len = s.size();
+        if (len <= 10)
+            return {};
+
+        unordered_map<int, int> subseqs;
+        vector<string> repeatingSeqs;
+        for (int i=0; i<len-10; i++) {
+            int strbitsVal = _stringToBits(s.substr(i,10));
+            auto it = subseqs.find(strbitsVal);
+            if (it != subseqs.end())
+                subseqs[strbitsVal]++;
+            else
+                subseqs[strbitsVal] = 1;
+        }
+        
+        for (auto it = subseqs.begin(); it != subseqs.end(); ++it)
+            if (it->second > 1)
+                repeatingSeqs.push_back(_bitsToString(it->first));
+
+        return repeatingSeqs;
+    }
+};
+
+***** and this is  chatgpt version which is more efficient but less readable imho *****
+
+#include <vector>
+#include <string>
+#include <unordered_map>
+
+class Solution {
+public:
+    std::vector<std::string> findRepeatedDnaSequences(std::string s) {
+        int len = s.size();
+        if (len <= 10) return {};  // No repeated sequences possible
+
+        std::unordered_map<int, int> subseqs;
+        std::vector<std::string> repeatingSeqs;
+
+        int bitmask = 0; // Use a 20-bit integer to represent the 10-letter sequence
+
+        // Initialize the bitmask for the first 10 letters
+        for (int i = 0; i < 10; ++i) {
+            bitmask <<= 2;
+            bitmask |= charToBits(s[i]);
+        }
+
+        subseqs[bitmask] = 1;
+
+        // Iterate through the remaining letters in the DNA sequence
+        for (int i = 10; i < len; ++i) {
+            // Update the bitmask by shifting left and adding the bits for the current letter
+            bitmask <<= 2;
+            bitmask |= charToBits(s[i]);
+            bitmask &= ~(0x300000); // Mask out the bits for characters beyond the 10-letter window
+
+            // Check if the bitmask is already in the map
+            auto it = subseqs.find(bitmask);
+            if (it != subseqs.end()) {
+                if (it->second == 1) {
+                    // This is the second occurrence of the sequence, add it to the result
+                    repeatingSeqs.push_back(s.substr(i - 9, 10));
+                }
+                it->second++;
+            } else {
+                subseqs[bitmask] = 1;
+            }
+        }
+
+        return repeatingSeqs;
+    }
+
+private:
+    // Helper function to convert characters to 2-bit representation
+    int charToBits(char c) {
+        switch (c) {
+            case 'A': return 0;
+            case 'C': return 1;
+            case 'G': return 2;
+            case 'T': return 3;
+            default: return 0;
+        }
+    }
+};
+
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/rotate-array/
+---------------------------------------------------------------------------------------
+
+**** my best solution uses O(1) space as challenged ****
+
+#include <iostream>
+#include <ostream>
+#include <vector>
+
+using namespace std;
+
+class Solution {
+public:
+    void rotate(vector<int>& nums, int k) {
+        
+        int len = nums.size();
+        k = k % len;
+        if (k == len)
+            return;
+        
+        int NminK = len-k;
+        int minKandNminK = min(k, NminK);
+        int maxKandNminK = max(k, NminK);
+        
+        for (int i=0; i<minKandNminK; i++)
+            swap(nums, i, maxKandNminK+i);
+        
+        if (NminK == k)
+            return;
+        
+        int absNmin2K = abs(len-2*k);
+        if (NminK > k) {
+            for (int i=0; i<absNmin2K; i++) { 
+                int srcI = NminK - 1 - i;
+                for (int j=0; j<minKandNminK; j++)
+                    swap(nums, srcI+j, srcI+1+j);
+            }
+        } else { // (NminK < k)
+            for (int i=0; i<absNmin2K; i++) { 
+                int srcI = NminK - 1 + i;
+                for (int j=0; j<minKandNminK; j++) 
+                    swap(nums, srcI-j, srcI+1-j);
+            }
+        }
+        
+    }
+    
+    void swap(vector<int>& nums, int i, int j) {
+        int swapTemp;
+        swapTemp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = swapTemp;
+    }
+    
+    void printArray(vector<int>& nums) {
+        for (int i=0; i<nums.size(); i++)
+            cout << nums[i] << ", ";
+        cout << "\n";
+    }
+};
+
+
+**** chat gpt kicked my ass and provide an amazing solution that shows the simplicity of this problem ***
+**** basically, reverse the entire array, then reverse each part that is separated by the k value ****
+
+class Solution {
+public:
+    void rotate(vector<int>& nums, int k) {
+        int len = nums.size();
+        k = k % len;
+        
+        // Reverse the entire array
+        reverse(nums.begin(), nums.end());
+        
+        // Reverse the first part up to k
+        reverse(nums.begin(), nums.begin() + k);
+        
+        // Reverse the remaining part
+        reverse(nums.begin() + k, nums.end());
+    }
+};
+
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/binary-tree-right-side-view/
+---------------------------------------------------------------------------------------
+
+*** easy... ***
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> rightSideView(TreeNode* root) {
+        if (root == NULL) 
+            return {};
+
+        vector<int> ans;
+        ans.push_back(root->val);
+        while (root->left != NULL || root->right != NULL) {
+            if (root->right != NULL) 
+                root = root->right;
+            else if (root->left != NULL) 
+                root = root->left;
+            else
+                break;
+            ans.push_back(root->val);
+        }
+
+        return ans;
+    }
+};
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/house-robber/
+---------------------------------------------------------------------------------------
+
+** recursive solution. chatgpt might tell me i'm wasting stack size..   -> my solution is incorrect...  **
+
+class Solution {
+public:
+    int rob(vector<int>& nums) {
+        if (nums.size() == 0)
+            return 0;
+        
+        int ansMax;
+        robRec(nums, 0, 0,  &ansMax);
+        return ansMax;
+    }
+
+    void robRec(vector<int>& nums, int idx, int acc, int* totalMax) {
+        acc += nums[idx];
+        if (idx >= nums.size() - 2) {
+           *totalMax = max(*totalMax, acc);
+            return;
+        }
+        for (int i=idx+2; i<nums.size(); i++) 
+            robRec(nums, i, acc, totalMax);
+    }
+};
+
+
+** chatgpt solution -> dynamic programming, ***
+
+class Solution2 {
+public:
+    int rob(vector<int>& nums) {
+        int n = nums.size();
+        if (n == 0) {
+            return 0;
+        }
+
+        vector<int> dp(n + 2, 0);
+        for (int i = n - 1; i >= 0; i--) {
+            dp[i] = max(nums[i] + dp[i + 2], dp[i + 1]);
+        }
+
+        return dp[0];
+    }
+};
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+https://leetcode.com/problems/number-of-islands/
+---------------------------------------------------------------------------------------
+
+** matrix traversing problem. I've improved my skills because i knew exactly how to solve it **
+** complexity is max O(n) because we use a visiting matrix **
+
+class Solution {
+public:
+    int numIslands(vector<vector<char>>& grid) {
+        
+        int islandCount = 0;
+
+        int n = grid.size();
+        int m = grid[0].size();
+        vector<vector<bool>> dp(n, vector<bool>(m, false));
+
+        for (int i=0; i<n; i++) {
+            for (int j=0; j<m; j++) {
+                if (dp[i][j] == false && grid[i][j] == '1') {
+                    islandCount++;
+                    traverseRec(grid, dp, i, j);
+                }
+                
+            }
+        }
+
+        return islandCount;
+    }
+
+    void traverseRec(vector<vector<char>>& grid, vector<vector<bool>>& dp, int i, int j) {
+        if (i < 0 || i > grid.size()-1 || 
+            j < 0 || j > grid[0].size()-1 || 
+            grid[i][j] == '0' || 
+            dp[i][j] == true)
+            return;
+        
+        dp[i][j] = true;
+        traverseRec(grid, dp, i+1, j);
+        traverseRec(grid, dp, i-1, j);
+        traverseRec(grid, dp, i, j+1);
+        traverseRec(grid, dp, i, j-1);
+    }
+};
+
+
+
+**** even better, solved it with O(1) memory space by using the original matrix, and then restoring it.
+
+class Solution {
+public:
+    int numIslands(vector<vector<char>>& grid) {
+        
+        int islandCount = 0;
+
+        int n = grid.size();
+        int m = grid[0].size();
+        // using the original matrix also as visited signaling
+        for (int i=0; i<n; i++)
+            for (int j=0; j<m; j++)
+                if (grid[i][j] == '1') {
+                    islandCount++;
+                    traverseRec(grid, i, j);
+                }
+        // restore original input matrix values.
+        for (int i=0; i<n; i++)
+            for (int j=0; j<m; j++)
+                if (grid[i][j] == '2') {
+                    grid[i][j] == '1';
+                }
+
+        return islandCount;
+    }
+
+    void traverseRec(vector<vector<char>>& grid, int i, int j) {
+        if (i < 0 || i > grid.size()-1 || 
+            j < 0 || j > grid[0].size()-1 || 
+            grid[i][j] != '1')
+            return;
+        
+        grid[i][j] = '2'; // '2' notate the cell as visited and also that its value was '1' originally
+        traverseRec(grid, i+1, j);
+        traverseRec(grid, i-1, j);
+        traverseRec(grid, i, j+1);
+        traverseRec(grid, i, j-1);
+    }
+};
+
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+LINK
+---------------------------------------------------------------------------------------
+SOLUTION
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------
+LINK
+---------------------------------------------------------------------------------------
+SOLUTION
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
