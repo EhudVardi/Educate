@@ -1,0 +1,444 @@
+Learn  Linux
+-----------------
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+https://www.youtube.com/watch?v=l0QGLMwR-lY
+Top 10 Linux Job Interview Questions
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+1. get kernel version
+~ uname -a
+~ uname -v
+~ uname -r
+
+2. current ip address
+~ ifconfig
+~ ip addr show 
+~ ip addr show eth0
+
+3. check free disk space
+~ df -ah
+
+4. check status of a service
+older sys
+~ service <name> <action>
+~ service udev status
+new way
+~ systemctl <action> <name>
+~ systemctl status udev
+
+5. check size of a file or directory
+~ ls   (list)
+~ lu -sh code/     (lu - directory use)
+
+6. check for open network ports
+~ netstat
+~ netstat -tulpn    (tcp, udp, listening, ...)
+
+** run as root - gives extra info (the process id and name)
+~ sudo netstat -tulpn
+
+7. check cpu usage of a process
+~ ps aux | grep <process name>
+~ ps aux | grep nginx
+
+** something similar to taskmanager. will give a table that is periodically updated.
+~ top
+
+** even better
+~ htop
+
+8. mount a storage device (usb stick, etc)
+
+// show files in mnt/ folder that is the canonical place to mount devices
+~ ls /mnt 
+// mount a device
+~ mount <address> <mount point>
+~ mount /dev/sda2 /mnt
+
+// list all mounts
+~ mount
+
+// auto mount a device at boot
+~ less /etc/fstab
+
+9. how to lookup for answers to questions for something i dont know
+
+~ man <command>
+~ man ps
+~ man ls
+
+
+10. finding more help
+article - how to ask questions the right way
+go to stackoverflow
+
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+https://www.youtube.com/watch?v=-Z5tCri-QlI
+pipes and i/o redirections in linux
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+pipe is the ability to stream output of a program as the input of another program
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+chat gpt queries
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+*** essential concepts and commands that are commonly used in a Linux environment ***
+
+File System Navigation:
+
+ls: List files and directories in the current directory.
+
+Example: ls
+Expected Result: Lists files and directories in the current directory.
+cd: Change directory.
+
+Example: cd /path/to/directory
+Expected Result: Changes the current directory to the specified path.
+pwd: Print the current working directory.
+
+Example: pwd
+Expected Result: Displays the current working directory.
+File and Directory Operations:
+
+cp: Copy files or directories.
+
+Example: cp file.txt /path/to/destination
+Expected Result: Copies "file.txt" to the specified destination.
+mv: Move or rename files and directories.
+
+Example: mv file.txt newfile.txt
+Expected Result: Renames "file.txt" to "newfile.txt".
+rm: Remove/delete files or directories.
+
+Example: rm file.txt
+Expected Result: Deletes the file "file.txt".
+mkdir: Create a new directory.
+
+Example: mkdir new_directory
+Expected Result: Creates a new directory named "new_directory".
+rmdir: Remove an empty directory.
+
+Example: rmdir empty_directory
+Expected Result: Removes the empty directory "empty_directory".
+Text Processing:
+
+cat: Concatenate and display the content of files.
+
+Example: cat file.txt
+Expected Result: Displays the content of "file.txt".
+less or more: Display content one screen at a time.
+
+Example: less file.txt
+Expected Result: Displays the content of "file.txt" one screen at a time.
+nano or vim: Text editors for creating or editing files.
+
+Example: nano new_file.txt
+Expected Result: Opens the "new_file.txt" for editing using the nano editor.
+File Content Manipulation:
+
+grep: Search for a specific pattern in files.
+
+Example: grep "pattern" file.txt
+Expected Result: Displays lines containing the specified pattern in "file.txt".
+sed: Stream editor for filtering and transforming text.
+
+Example: sed 's/old/new/' file.txt
+Expected Result: Replaces the first occurrence of "old" with "new" in "file.txt".
+awk: A versatile programming language for pattern scanning and processing.
+
+Example: awk '{print $2}' file.txt
+Expected Result: Prints the second field of each line in "file.txt".
+File Permissions:
+
+chmod: Change file permissions.
+
+Example: chmod 755 file.txt
+Expected Result: Changes the permissions of "file.txt" to read, write, and execute for the owner, and read and execute for others.
+chown: Change file owner and group.
+
+Example: chown user:group file.txt
+Expected Result: Changes the owner and group of "file.txt" to the specified user and group.
+System Information:
+
+uname: Display system information.
+
+Example: uname -a
+Expected Result: Displays detailed system information.
+df: Display disk space usage.
+
+Example: df -h
+Expected Result: Displays disk space usage in a human-readable format.
+free: Display amount of free and used memory in the system.
+
+Example: free -m
+Expected Result: Displays memory usage in megabytes.
+Process Management:
+
+ps: Display information about running processes.
+
+Example: ps aux
+Expected Result: Displays information about all running processes.
+kill: Terminate a process.
+
+Example: kill -9 PID
+Expected Result: Sends a signal to terminate the process with the specified PID.
+Package Management:
+
+apt (Ubuntu/Debian) or yum (Red Hat/CentOS): Install, remove, and update software packages.
+Example: sudo apt-get install package_name
+Expected Result: Installs the specified package using APT.
+Networking:
+
+ping: Check network connectivity.
+
+Example: ping google.com
+Expected Result: Sends ICMP echo requests to Google's servers.
+ifconfig or ip: Display or configure network interfaces.
+
+Example: ifconfig
+Expected Result: Displays information about network interfaces.
+netstat or ss: Display network connections.
+
+Example: netstat -an
+Expected Result: Displays active network connections.
+System Logs:
+
+dmesg: Display kernel messages.
+
+Example: dmesg | grep error
+Expected Result: Displays kernel messages containing the word "error".
+journalctl: Query and display messages from the journal.
+
+Example: journalctl -u service_name
+Expected Result: Displays logs related to the specified service.
+Pipes and Redirection:
+
+| (pipe): Redirects the output of one command as input to another.
+
+Example: ls | grep pattern
+Expected Result: Lists files and directories, and then filters the output to show only lines containing the specified pattern.
+> and <: Redirects output or input from/to a file.
+
+Example: echo "Hello" > greeting.txt
+Expected Result: Writes "Hello" to a file named "greeting.txt".
+User Management:
+
+adduser or useradd: Add a new user.
+
+Example: adduser new_user
+Expected Result: Adds a new user named "new_user".
+passwd: Change user password.
+
+Example: passwd username
+Expected Result: Prompts for a new password for the specified user.
+
+
+*************************************************************************************
+
+
+****************************** pipes in linux ******************************
+
+Pipes (|) in Linux allow you to combine multiple commands, sending the output of one command as input to another. This feature is powerful and enables you to create complex command sequences to achieve specific tasks efficiently. Let's explore some examples to help you understand how to use pipes in Linux:
+
+Basic Example:
+
+Command: ls | grep "txt"
+Explanation: Lists files in the current directory and then filters the output to show only those containing "txt" in their names.
+Counting Files:
+
+Command: ls | wc -l
+Explanation: Lists files in the current directory, and the output is then passed to wc -l (word count with the option to count lines), which counts the number of files.
+Finding Running Processes:
+
+Command: ps aux | grep "process_name"
+Explanation: Lists all running processes, and the output is filtered to show only those containing the specified process name.
+Checking Disk Usage of Home Directory:
+
+Command: du -h ~ | sort -rh | head -n 5
+Explanation: Shows the disk usage of the home directory, sorts the output in reverse order, and displays the top 5 largest directories.
+Combining Multiple Commands:
+
+Command: cat file.txt | grep "pattern" | sed 's/old/new/'
+Explanation: Reads the content of "file.txt," filters lines containing "pattern," and then replaces the first occurrence of "old" with "new."
+Counting Word Occurrences in a File:
+
+Command: cat document.txt | tr ' ' '\n' | sort | uniq -c | sort -nr
+Explanation: Reads the content of "document.txt," breaks it into individual words, counts the occurrences of each word, and displays the result sorted by count in descending order.
+Filtering Log Entries:
+
+Command: cat /var/log/syslog | grep "error" | tail -n 10
+Explanation: Displays the last 10 lines containing "error" in the syslog file.
+Monitoring Network Connections:
+
+Command: netstat -an | grep "ESTABLISHED"
+Explanation: Shows all established network connections.
+Displaying Unique Lines:
+
+Command: cat file.txt | sort | uniq
+Explanation: Reads the content of "file.txt," sorts it, and displays unique lines.
+Calculating File Size in Human-Readable Format:
+
+Command: ls -l | awk '{sum+=$5} END {print sum}' | numfmt --to=iec
+Explanation: Lists files with their sizes, calculates the total size, and prints it in a human-readable format using numfmt.
+
+****************************************************************************
+
+
+*************************** redirects in linux *****************************
+
+what is  input output redirect in linux ?  please show me an elaborate list of examples 
+
+2 / 2
+
+ChatGPT
+Input/output redirection in Linux allows you to control where the input for a command comes from and where the output goes. The basic symbols used for redirection are > (output redirection) and < (input redirection). Additionally, >> can be used to append output to a file instead of overwriting it. Let's explore some examples to illustrate these concepts:
+
+Output Redirection:
+
+Command: ls > file_list.txt
+Explanation: Redirects the output of the ls command to a file named file_list.txt. If the file already exists, it will be overwritten.
+Appending to a File:
+
+Command: echo "New content" >> existing_file.txt
+Explanation: Appends the text "New content" to the end of an existing file named existing_file.txt.
+Input Redirection:
+
+Command: wc -l < file.txt
+Explanation: Redirects the content of the file file.txt as input to the wc -l command, which then counts the number of lines.
+Combining Input and Output Redirection:
+
+Command: sort < unsorted.txt > sorted.txt
+Explanation: Reads the content of the file unsorted.txt, sorts it, and redirects the sorted output to a file named sorted.txt.
+Using a Here Document (Input Redirection):
+
+Command:
+bash
+Copy code
+cat <<EOF > greeting.txt
+Hello, this is a greeting.
+Have a nice day!
+EOF
+Explanation: Creates a file named greeting.txt with the provided text using a here document (<<EOF).
+Redirecting Standard Error (stderr):
+
+Command: command_that_might_fail 2> error_log.txt
+Explanation: Redirects the error output (stderr) of a command to a file named error_log.txt.
+Redirecting Standard Output and Standard Error:
+
+Command: command_that_might_fail > output_log.txt 2>&1
+Explanation: Redirects both standard output and standard error to a file named output_log.txt.
+Using a File as Input for a Loop:
+
+Command:
+bash
+Copy code
+while read line; do
+  echo "Line: $line"
+done < input_file.txt
+Explanation: Reads each line from input_file.txt and processes it within a loop.
+Redirecting Output to /dev/null (Discarding Output):
+
+Command: command_with_lots_of_output > /dev/null
+Explanation: Discards the output of a command by redirecting it to /dev/null.
+Piping Output to Another Command:
+
+Command: ls -l | grep "file" > filtered_list.txt
+Explanation: Lists files in long format, filters the output to show only lines containing "file," and redirects the result to filtered_list.txt.
+
+
+
+****************************************************************************
+
+
+************************* Here Document **********************************
+
+User
+elaborate on "Here Document"
+ChatGPT
+A "Here Document" is a way to specify multiple lines of input to a command in a script or directly in the command line without having to create a separate file. It's particularly useful when you want to provide a block of text to a command as input or create a file on the fly. The syntax for a Here Document involves using the << operator followed by a delimiter (often EOF or any other identifier), and the block of text is terminated by the delimiter.
+
+Here's the basic structure of a Here Document:
+
+bash
+Copy code
+command <<DELIMITER
+  Text to be provided as input
+  More text...
+DELIMITER
+Here's an example to illustrate how a Here Document works:
+
+bash
+Copy code
+cat <<EOF
+This is line 1.
+This is line 2.
+This is line 3.
+EOF
+In this example, the cat command is used to concatenate and display the lines of text provided between <<EOF and EOF. The EOF in this case is the delimiter, and it signifies the end of the block of text.
+
+You can use any word as the delimiter, and it's crucial to choose one that won't appear in the text you're providing to avoid premature termination of the Here Document.
+
+Here are some common use cases for Here Documents:
+
+Creating or Appending to a File:
+
+bash
+Copy code
+cat <<END_TEXT > output_file.txt
+This is line 1.
+This is line 2.
+END_TEXT
+This creates or overwrites output_file.txt with the specified lines of text.
+
+Passing Multiline Input to a Command:
+
+bash
+Copy code
+sed 's/pattern/replacement/' <<DATA
+This is some data with a pattern.
+Replace the pattern with this.
+DATA
+This provides multiline input to the sed command for pattern replacement.
+
+Using Here Document in a Script:
+
+bash
+Copy code
+#!/bin/bash
+
+cat <<MESSAGE
+Welcome to the script!
+This script does something interesting.
+MESSAGE
+The Here Document is used to display a welcome message when the script is executed.
+
+**************************************************************************
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+
