@@ -1,0 +1,942 @@
+Learn RT Embedded
+-----------------
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+https://www.qt.io/embedded-development-talk/questions-to-help-you-prep-for-an-embedded-engineer-interview-in-2021
+Questions to Help You Prep for An Embedded Engineer Interview in 2021
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+- Ask questions at the end of the interview to show interest.
+- Ask myself "what problems does this position meant to solve for the company"
+- If I don't know something I should be honest and persist that though i don't know, I really want to get experienced.
+
+----------------------------------------------
+typical embedded systems interview questions
+https://www.qt.io/embedded-development-talk/embedded-engineers-roles-responsibilities-and-job-descriptions
+----------------------------------------------
+...
+
+----------------------------------------------
+
+
+----------------------------------------------
+General and "soft-skills" questions for embedded engineers
+----------------------------------------------
+- have a story ready where a conflict arose with a coleague and how did we solved the dispute?
+- have a story wher I had a difficult project I take pride in. what were the challanges, and how did I solved them
+- have two character traits that I would like to emphesis - accuracy, maticulusness, kindness
+- why would i choose myself if i was the interviewer
+----------------------------------------------
+
+
+----------------------------------------------
+Technical interview questions for embedded engineers
+----------------------------------------------
+
+General questions:
+-----------------------
+- How would you equalize a high-speed interface?
+-- Equalizing a high-speed interface is a common technique in real-time embedded systems to compensate for signal degradation that can occur as a result of factors like transmission line effects, reflections, and other signal integrity issues. Equalization helps to ensure that the received signal is as close as possible to the original 
+
+- Explain how the I2C interface works.
+-- I2C, (Inter-Integrated Circuit) is a popular serial communication protocol that allows multiple devices to communicate with each other using a two-wire bus. connecting various components such as sensors, EEPROMs, real-time clocks, and other integrated circuits.
+--- Two-Wire Communication: SDA (bidirectional data line), SCL (clock line). facilitate communication between the master and the slave devices.
+--- Start and Stop Conditions: Communication begins with a start condition (S) and ends with a stop condition (P).
+---- Start Condition: The master pulls SDA low while SCL is high. This signals the beginning of a communication sequence.
+---- Stop Condition: The master releases SDA from low to high while SCL is high. This indicates the end of a communication sequence.
+--- Addressing: Each device on the I2C bus has a unique 7-bit (more common) or 10-bit address. The 7-bit address is .master sends the address of the target device along with a read/write bit to specify the direction of data transfer.
+--- Data Transfer: transferred in 8-bit bytes. 
+---- After sending the device address and the read/write bit, the master and slave devices take turns sending or receiving data.
+---- Data is synchronized with the clock signal (SCL). The data line (SDA) is sampled on the edges of the clock signal.
+--- Acknowledgment: After each byte, the receiver (whether master or slave) acknowledges successful reception by pulling the SDA line low during the acknowledgment bit.
+--- Repeated Start: A repeated start condition allows the master to communicate with multiple devices without releasing control of the bus. It is initiated by the master immediately after the end of a data transfer.
+--- Bit-Level Timing: The speed of communication is determined by the clock frequency (SCL). Devices on the bus must agree on a common clock speed. Common frequencies include 100 kHz, 400 kHz, and 1 MHz.
+--- Bus Arbitration: If two devices attempt to communicate simultaneously, the one with the lower address wins arbitration and continues the communication.
+--- Clock Stretching: A slave device can hold the clock line low to slow down the master if it needs more time to process data.
+
+- How does a finite state machine (FSM) work in an embedded system?
+-- A Finite State Machine (FSM) is a computational model used in embedded systems and other areas of computer science to represent the behavior of a system that can be in a finite number of states. In the context of embedded systems, FSMs are often employed to model the control logic of a system, such as a microcontroller or a specific module within a larger system
+
+- Name one sorting algorithm.
+-- bubble sort (adjecent jump)
+-- quick sort (pivot right left and recursive subarrays)
+-- Binary Sort (or Insertion Sort)
+-- Merge Sort (recursively divide the array to two subarrays and them merge them back)
+-- Heap Sort (using max/min heap)
+
+- What is an atomic operation?
+-- an operation that appears to be executed as a single, indivisible unit, without any interference or interruption by other operations.
+-- during the execution of an atomic operation, no other operations can observe the operation in an intermediate or partially completed state.
+
+- How do you avoid memory fragmentation when targeting embedded devices?
+-- can lead to inefficient use of available memory and potentially affect the reliability of the system. 
+--- some strategies to help avoid or mitigate:
+---- Use Fixed-Size Memory Pools - Allocate memory in fixed-size blocks, creating pools for objects of different sizes
+---- Memory Partitioning - Divide the memory into fixed partitions for specific tasks or components.
+---- Memory Compaction - Periodically reorganize the memory to consolidate free space and reduce fragmentation (defrag..)
+---- Dynamic Memory Allocators - Choose memory allocators carefully
+---- Memory Pool Defragmentation - Implement mechanisms for defragmenting memory pools
+---- Static Memory Allocation - Where possible, allocate memory statically at compile time 
+---- Fragmentation Monitoring - Implement a mechanism to monitor and log memory fragmentation
+---- Minimize Memory Allocation/Deallocation
+---- Memory Usage Analysis - Perform thorough memory usage analysis during the development
+---- Memory Allocation Policies - Choose appropriate memory allocation policies based on the specific requirements
+
+- What are ways to reduce power consumption in an embedded system?
+-- Low-Power Components: Select low-power components
+-- Dynamic Voltage and Frequency Scaling (DVFS): Adjust the operating voltage and clock frequency of the processor based on the workload.
+-- Sleep Modes and Power Gating: Utilize low-power sleep modes at idle. Power gating involves turning off power to components or peripherals when not in use.
+-- Peripheral Management: Disable or put peripheral devices into low-power modes when they are not actively used.
+-- Efficient Algorithms and Data Structures: Use algorithms and data structures that minimize computational and memory requirements.
+-- Optimized Code: Write efficient and optimized code. Minimize the use of unnecessary loops, conditionals, etc.
+-- Task Scheduling: Implement efficient task scheduling and interrupt handling. 
+-- Adaptive Brightness and Backlight Control: Adjust the brightness of displays and control backlighting based on ambient light conditions.
+-- Energy-Efficient Communication: Opt for low-power communication protocols, and minimize the frequency and duration of data transmission. (BLE)
+-- Sensor Fusion: Combine data from multiple sensors using sensor fusion algorithms. This can reduce the need for high-power sensors to be active continuously.
+-- Energy Harvesting: Explore energy harvesting techniques to generate power from the environment
+-- Temperature Management: Keep the system within an optimal temperature range.
+-- Selectively Power Down Components: Turn off power to specific components or modules that are not required for current operations. 
+-- Predictive and Adaptive Control: Implement predictive and adaptive control strategies that anticipate future system states and adjust power consumption accordingly.
+
+- What are the purpose and benefits of object-oriented programming?
+Purposes: Modularity, Reusability, Encapsulation, Abstraction, Inheritance, Polymorphism
+Benefits: Code Reusability, Modularity and Maintainability, Scalability, Flexibility and Adaptability, Encapsulation and Security,Effective Problem Solving, Promotes Collaboration, Code Maintenance, Modeling Real-World Entities
+
+
+- What are the four pillars of object-oriented programming?
+-- Polymorphysm
+-- Encapsulation
+-- Inheritance
+-- Abstraction
+
+- Tell me the difference between a process and a thread.
+-- A process is an independent program with its own memory space, while a thread is a lightweight unit of a process that shares the same memory space.
+-- Processes have higher resource overhead, memory isolation, and fault isolation. They are created independently and communicate through IPC mechanisms.
+-- Threads share the same memory space, have lower resource overhead, and can communicate more easily. However, they may face challenges related to synchronization and data sharing.
+-- Processes are better suited for tasks that require high fault isolation, while threads are appropriate for tasks that benefit from shared memory and lower overhead, especially in situations with parallelism considerations.
+
+- What are common issues in handling interrupts?
+-- Priority Inversion: occurs when a lower-priority task holds a resource that a higher-priority task requires. 
+--- Use priority inheritance protocols or priority ceiling protocols
+-- Nested Interrupts: occur when an interrupt is triggered while the processor is already servicing another interrupt.
+--- Disable interrupts during critical sections where nesting is not allowed or use interrupt nesting mechanisms.
+-- Shared Resources: occurs when multiple interrupts or tasks access shared resources concurrently, it can lead to race conditions and data corruption.
+--- Implement proper synchronization mechanisms, such as semaphores or mutexes.
+-- Interrupt Latency: it is the time it takes for the system to respond to an interrupt. Excessive interrupt latency can impact the responsiveness of the system.
+--- Minimize interrupt service routine (ISR) execution time, prioritize critical interrupts, and configure the system for low-latency interrupt handling.
+-- Interrupt Overhead: frequent interrupts can impact the overall system performance.
+--- Optimize interrupt service routines to be as efficient as possible. Use interrupts judiciously and consider batching or coalescing interrupts
+-- Race Conditions: occurs when the sequence of execution is unpredictable due to the interleaving of instructions from multiple interrupts.
+--- Use proper synchronization mechanisms, such as locks or atomic operations
+-- Interrupt Priority Configuration: improper configuration of interrupt priorities may lead to unexpected behavior.
+--- Carefully configure interrupt priorities according to the system requirements.
+-- Interrupt Storms: occurs when an interrupt source generates interrupts at an extremely high rate, overwhelming the system.
+--- Implement appropriate debouncing or filtering mechanisms to reduce the frequency of interrupts during storm conditions.
+-- Non-Reentrant Code: code that cannot be safely called simultaneously by multiple tasks or interrupts. may lead to unexpected behavior.
+--- Design interrupt service routines and critical sections to be reentrant. Avoid using global variables that can be modified by both main code and interrupts without proper synchronization.
+
+- What is a semaphore? What are the different types?
+-- a synchronization primitive used in concurrent programming. control access to resources shared by multiple processes or threads. help avoid race conditions and coordinate the execution of critical sections.
+--- Binary Semaphore - mutex (mutually exclusive). lock (0) & unlock (1)
+--- Counting Semaphore - Allows an arbitrary number of resources to be controlled. wait (--) & signal (++)
+
+- Can semaphores be used for interrupt context in Linux Kernel?
+-- not suitable for use in interrupt context because acquiring and releasing semaphores typically involves sleeping, which is not allowed in interrupt context due to the potential for deadlocks and other issues.
+-- Linux kernel provides a different synchronization primitive that is specifically designed for interrupt context: spinlocks.
+-- Spinlocks: a type of synchronization primitive used in the Linux kernel, and they are specifically designed for use in interrupt context. Unlike semaphores, spinlocks do not involve sleeping or blocking. Instead, if a spinlock is not immediately available, the requesting code "spins" in a loop until the lock becomes available. Spinlocks are generally lightweight and suitable for use in situations where the critical section is expected to be held for a short duration.
+-- Preemption Disabling: preemption can be disabled in interrupt context using the preempt_disable and preempt_enable functions. This prevents the scheduler from preempting the running task, providing a form of synchronization. However, this should be used with caution and for short durations to avoid negatively impacting system responsiveness.
+
+- How do you use the keyword "Volatile"?
+-- used to indicate to the compiler that a variable's value may be changed by external factors that are not predictable by the compiler. This informs the compiler not to optimize code based on the assumption that the variable's value remains unchanged
+-- primary use cases related to variables that can be modified by hardware, signal handlers, or other parts of a program that are not explicitly controlled by the program itself
+
+- What does the keyword "const" mean?
+-- used to indicate that a variable's value cannot be modified after it has been initialized. provides Safety, Readability and Compiler Optimization: 
+-- In C++, const can be used in various contexts, including member functions, class objects, and reference
+
+- What is a watchdog timer?
+-- a hardware or software mechanism used in embedded systems and computer systems to monitor the operation of a program or a device. Its primary purpose is to detect and recover from malfunctions or failures that may occur in the system
+-- Key Characteristics and Functions: 
+--- Timer Functionality, Reset or Recovery Action, Monitoring Software or System Health, Watchdog Feeding, Fail-Safe Mechanism, Real-Time Systems and Critical Applications, 
+-- Hardware vs. Software Watchdogs:
+--- Hardware: implemented as a dedicated hardware component on the microcontroller or processor. It operates independently of the main processor and is often designed to continue functioning even if the main processor is in a non-responsive state
+--- Software: implemented entirely in software using timers and interrupts. It relies on the proper functioning of the software to reset or feed the timer. may be less reliable than their hardware counterparts in certain failure scenarios.
+
+- What is the difference between using an inline function and a macro?
+-- Inline Functions
+--- Type Safety: provide type safety since they are defined with a specific function signature
+--- Debugging: easier to debug (can step into)
+--- Scoping: respect scoping rules, apart of the normal function scope and can access local variables and parameters
+--- Readability: more readable
+--- Arguments Evaluation: Arguments are evaluated exactly as in a regular function call.
+--- Compiler Control: it is a hint to the compiler and does not promise how it will treat it.
+-- Macros:
+--- Code Expansion: replaced with their code during the preprocessing stage. no type checking or scoping. can lead to unexpected behavior if not used carefully.
+-- No Function Call Overhead: don't incur the function call overhead. This can be beneficial in performance-critical code.
+-- Flexibility: high degree of flexibility.
+-- Compiler Agnosticism: are part of the preprocessing stage and are expanded before actual compilation, which can be advantageous for code that needs to be portable across different compilers.
+-- Advanced Features: support advanced features "stringification" (#define STRINGIFY(x) #x), "token pasting" (#define CONCAT(x, y) x ## y)
+
+- What is a memory leak?
+-- occures a program allocates memory for certain objects or data during its execution but fails to release or deallocate that memory when it is no longer needed
+
+- When and why would you use the keyword "static"?
+-- can be used in various contexts, affecting the scope, lifetime, and linkage of variables and functions
+--- Static Variables: var retains its value between function calls
+--- Static Functions: limits the visibility of the function to the translation unit (i.e., the source file)
+--- Static Global Variables:  restricts its scope to the file where it is declared
+--- Static in Structs (C++): declare static member variables in the struct
+--- Static in Classes (C++): declare static member variables which will be shared among all instances of the class
+
+Questions around C/C++:
+-----------------------
+- Why are C and C++ still popular and widely used in embedded systems?
+- What are the benefits of using C/C++ vs. higher-level languages?
+- How does one code an infinite loop in C?
+
+Microcontroller inquiries:
+-----------------------
+- When might someone choose a microcontroller instead of a microprocessor when building an embedded system?
+
+
+-- Microcontroller: 
+--- a compact integrated circuit that contains a processor core, memory (both RAM and ROM or Flash), timers, and various peripherals (such as communication interfaces, analog-to-digital converters, GPIO pins) on a single chip.
+--- designed as complete systems on a chip, specifically tailored for embedded applications.
+--- commonly used in embedded systems for specific applications, such as controlling a microwave oven, managing a washing machine, or operating an automotive control system.
+--- designed for low-power operation, suitable for battery-powered devices and other energy-efficient applications.
+--- well-suited for real-time control applications, where they can interface with sensors, process data, and control actuators with deterministic timing.
+--- come with a variety of integrated peripherals, reducing the need for external components. Common peripherals include UART, SPI, I2C, ADC, timers, and GPIO pins.
+--- generally more cost-effective than microprocessors, as they are optimized for specific applications, and unnecessary components are omitted.
+--- have lower processing power compared to microprocessors, designed to meet the specific needs of their target applications.
+---- Home appliances, Automotive control systems, IoT devices and sensors, Consumer electronics (remote controls, smart devices).
+-- Microprocessor:
+--- a standalone processing unit that requires external components such as memory (RAM and ROM or Flash), peripherals, and external interfaces to form a complete system.
+--- general-purpose and are not optimized for specific tasks; they can execute a wide range of instructions.
+--- used in a variety of computing devices, from personal computers and servers to embedded systems that require general-purpose computing capabilities.
+--- have higher processing power compared to microcontrollers. They are suitable for running complex algorithms and handling multitasking.
+--- require external memory (RAM and ROM) and peripherals to be connected externally. The overall system design is more modular.
+--- commonly used in applications where general computing capabilities are needed, such as desktop computers, laptops, and servers.
+--- have higher power consumption compared to microcontrollers, making them less suitable for power-constrained applications.
+--- often more expensive than microcontrollers, as they provide greater processing power and flexibility.
+---- Personal computers and laptops, Servers and data centers, High-performance computing applications, General-purpose computing tasks
+
+- How can you use a micro-controller to determine the frequency of a high-voltage level on a bus?
+-- Hardware 
+--- Signal Conditioning (acceptable voltage range)
+--- Voltage Protection (protect the microcontroller from overvoltage or voltage spikes)
+--- Edge Detection (detect rising or falling edges. using comparator or through sw monitoring)
+-- Software
+--- Interrupts (external interrupts trigger at rising or falling edges)
+--- Timer/Counter (measure the time between consecutive rising or falling edges - capture mode)
+--- Calculate Frequency  (Frequency = 1/Period)
+--- Filtering (Optional) (eliminate noise and ensure accurate frequency measurement)
+
+Real-Time operating systems questions:
+-----------------------
+- What are the important metrics of real-time software?
+-- Response Time - The time taken by the system to respond to an external event or stimulus.
+-- Deadline Miss Ratio - The ratio of the number of tasks or events that miss their deadlines to the total number of tasks or events.
+-- Throughput - The number of tasks or events processed by the system within a specified time period.
+-- Jitter - The variation in the time it takes for a task or event to be processed.
+-- Utilization - The ratio of time that the processor is actively executing tasks to the total available time.
+-- CPU Load - The percentage of time the CPU is actively processing tasks.
+-- Interrupt Latency - The time it takes for the system to respond to an external interrupt and start executing the associated interrupt service routine (ISR).
+-- Task Switching Time - The time it takes to switch between different tasks or threads in a multitasking environment.
+-- Worst-Case Execution Time (WCET) - he maximum time it takes for a specific task to complete under worst-case conditions.
+-- Fault Tolerance and Reliability - The ability of the system to continue functioning correctly in the presence of faults or failures.
+-- Scalability - The ability of the system to handle an increasing number of tasks or events while maintaining performance.
+-- Safety and Security - The level of assurance that the system operates safely and securely, preventing unintended behavior or unauthorized access.
+
+
+
+- Describe the advantages and disadvantages of using a real-time operating system on a mid-range microcontroller.
+
+-- Advantages: 
+--- Task Scheduling: task scheduling mechanisms allow efficient multitasking. multiple tasks need to run concurrently.
+--- Predictable Response Times: helps achieving predictable and deterministic response times for critical tasks.
+--- Resource Management: offer resource management features, enabling efficient utilization of system resources such as CPU time, memory, and peripherals.
+--- Priority-Based Execution: assign priorities to tasks allows critical tasks to be executed with higher priority.
+--- Inter-Task Communication: provide mechanisms for inter-task communication, (message queues and semaphores, etc) facilitating communication and synchronization between different tasks.
+--- Ease of Development: simplifies the development of complex embedded systems. abstracting low-level hardware details. providing a higher-level framework for task management.
+--- Modularity: allows for the development of modular and maintainable code by encapsulating tasks into separate modules with well-defined interfaces.
+--- Fault Isolation: often include features that enhance fault isolation, minimizing the impact of failures in one part of the system on other components.
+-- Disadvantages:
+--- Resource Overhead: some level of resource overhead, (additional code size and RAM usage)
+--- Learning Curve: requires learning specific features and APIs of the OS.
+--- Boot Time: may have a longer boot time compared to bare-metal applications.
+--- Limited Middleware Support: may have limited support for middleware and connectivity features in popular RTOSs.
+--- Complexity: adds complexity to the system.
+--- Cost: licensing costs associated with commercial RTOSs
+--- Real-Time Guarantees: achieving hard real-time guarantees (e.g., fixed response times) may be challenging
+--- Customization Limitations: may have limitations in terms of customization, and adapting them to specific hardware requirements might be challenging in certain cases.
+
+Quality assurance discussion:
+-----------------------
+- Why is it more difficult to test graphical user interfaces than container classes?
+- What is the difference between static and dynamic analysis testing?
+
+Specific coding exercises:
+-----------------------
+- Code a program that tells us whether an integer is even or odd.
+bool func(int num) { return (num % 2); }
+
+- Write a function that will consider an array and return the number of odd numbers.
+int func2(int[] arr) { int count; foreach(num in arr) { if (func(num)) count++; } return count; }
+
+Puzzle questions for embedded engineers
+-----------------------
+- How might you weigh an airplane with no scales?
+- If there are 70 legs in total and there are 26 animals involving chickens and horses, can you figure out how many are horses and how many are chickens—without using an equation?
+- There are two light bulbs in a room and three switches outside the room. How do you determine which switches operate which bulbs?
+- Why are sewer caps round?
+
+
+Download a copy of all these embedded engineering interview questions.
+-----------------------
+https://www.qt.io/hubfs/Embedded%20Talk/Materials/Sample%20Job%20Interview%20Questions%20for%20Embedded%20Engineers.docx
+
+----------------------------------------------
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+common peripherals review
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+1. SPI (Serial Peripheral Interface):
+- synchronous serial communication protocol used to transfer data between a master device and one or more peripheral devices or slaves. It is commonly used for communication between microcontrollers, sensors, displays, and other digital devices.
+-- Synchronous Communication: SPI operates synchronously. data is transferred based on a clock signal shared between the master and slave devices.
+-- Full-Duplex Communication: SPI supports full-duplex communication, allowing simultaneous data transmission and reception.
+-- Master-Slave Configuration: master device initiates communication and one or more slave devices respond to the master's commands.
+-- Multiple Slave Devices: support multiple slave devices on the same bus, with each device having a unique chip select (CS) line.
+-- Configurable Data Frame: configurable data frame size, clock polarity and phase are often
+- Usages: connect microcontrollers with peripherals such as sensors, memory devices, and display modules. Its high-speed, full-duplex communication makes it suitable for applications where real-time data transfer is essential.
+- Data lines: 
+-- MOSI (Master Out Slave In)
+-- MISO (Master In Slave Out)
+-- Serial Clock Line (SCK): This line carries the clock signal
+-- Chip Select (CS or SS): Each slave device on the bus has a chip select line, enabling the master to select a specific slave for communication.
+- Communication Sequence:
+-- Chip Select (CS): The master asserts the chip select line for the target slave device.
+-- Clock Synchronization: The master and slave devices synchronize their clocks.
+-- Data Transfer (Full-Duplex): The master sends data to the slave (MOSI), and simultaneously, the slave sends data to the master (MISO).
+-- Clock Edge: Data is sampled on either the rising or falling edge of the clock, depending on the configuration.
+-- Chip Deselect: After the desired amount of data is transferred, the master de-asserts the chip select line, indicating the end of communication.
+- Advantages: High-Speed Communication, Simple Hardware Implementation, Flexibility (supports various data frame sizes), Full-Duplex Capability (transmit and receive data simultaneously)
+- Disdvantages: Limited Cable Length, Wiring Complexity (Each slave device requires a dedicated cs line), Not Suited for Large Bus Configurations
+
+2. A2D (Analog-to-Digital Converter):
+- a component or subsystem in embedded systems that converts analog signals (continuous voltage levels) into digital values (discrete binary values).
+-- Resolution: the number of discrete levels in the digital output.
+-- Sampling Rate: The rate at which the A2D converter samples and converts the analog signal.
+-- Accuracy and Precision: variance of accuracy and precision.
+-- Reference Voltage: reference voltage is required for the conversion process, and is crucial for accuracy.
+- Usages: interface with analog sensors such as temperature sensors, light sensors, and potentiometers. 
+
+3. DMA (Direct Memory Access):
+- allows peripherals or memory blocks to communicate with each other without involving the CPU. mem <-> mem and peripheral <-> mem
+-- Autonomous Data Transfer: transfer data independently of the CPU reducing the burden on the CPU for data transfer tasks.
+-- Increased Throughput: bypassing the CPU significantly increase data transfer rates,
+-- Channel Configuration: multiple channels, allowing simultaneous data transfers
+-- Configurable Priority: can be assigned priorities to manage the order in which different channels are serviced.
+- Usages: high-speed data transfer between peripherals and memory. Applications include audio processing, graphics handling, and communication interfaces such as USB and Ethernet.
+
+4. PWM (Pulse Width Modulation):
+- a technique used to generate analog-like signals using digital means. It involves modulating the width of pulses in a periodic signal to achieve variable voltage levels, allowing control of power delivered to a load.
+-- Period and Duty Cycle: a fixed period and the duty cycle which determines the average voltage level.
+-- Frequency Control: The frequency of the PWM signal can be adjusted
+-- Voltage Control: varying the duty cycle to control the average voltage delivered
+-- Digital Signal: a digital signal making it well-suited for microcontroller-based applications.
+- Usages: motor control, LED dimming, audio generation, and power regulation. It provides a cost-effective and efficient means of controlling devices that require variable voltage levels
+
+5. UART (Universal Asynchronous Receiver-Transmitter):
+-a communication protocol used for serial communication between devices. It is asynchronous, meaning that data is transmitted without a shared clock signal between the sender and receiver.
+-- Asynchronous Communication: start and stop bits frames each data byte, allowing asynchronous communication between devices.
+-- Baud Rate: determines the speed of communication and must match on tx and rx sides
+-- Serial Data Format: frames consisting of start bits, data bits (usually 8 bits), optional parity bits, and stop bits.
+-- Full-Duplex Communication: UART supports full-duplex communication, allowing data to be transmitted and received simultaneously.
+Usages: connecting microcontrollers with other devices such as sensors, GPS modules, and wireless communication modules
+
+I2C (Inter-Integrated Circuit):
+- a synchronous, multi-master, multi-slave, packet-switched, and multi-drop serial communication protocol used for connecting multiple integrated circuits on the same bus.
+-- Synchronous Communication: a synchronous protocol where data is transferred based on a shared clock signal between the master and the slave devices.
+-- Multi-Master Capability: Multiple master devices can exist on the same bus.
+-- Multi-Slave Capability: Multiple slave devices can be connected to the same bus, and each slave has a unique address for identification.
+-- Bi-Directional Data Lines: only two bidirectional lines (SDA) and (SCL)
+-- Start and Stop Conditions: Communication begins with a start condition and ends with a stop condition, framing each data transfer.
+-- Addressing: Devices on the bus are addressed by unique 7-bit or 10-bit addresses. 
+-- Wide Device Support: many devices support I2C
+- Usages: communication between microcontrollers and various peripherals such as sensors, EEPROMs, real-time clocks, and display controllers. communicate on the same bus.
+
+- Sequence: 
+-- Start Condition: The communication begins with a start condition, where the SDA line transitions from high to low while the SCL line is high.
+-- Addressing: The master sends the address of the target slave device (7 or 10 bits).
+-- Read/Write Bit: The master sends a read/write bit indicating the direction of data transfer.
+-- Data Transfer: The master and slave exchange data in bytes, and the communication is acknowledged or not-acknowledged after each byte.
+-- Stop Condition: The communication concludes with a stop condition, where the SDA line transitions from low to high while the SCL line is high.
+
+- Advantages: 
+-- Multi-Device Communication: I2C allows multiple devices to communicate on the same bus, simplifying the interconnection of components in embedded systems.
+-- Addressing: Devices on the bus are addressable, enabling the master to communicate with specific slaves.
+-- Low Pin Count: I2C requires only two wires (SDA and SCL) for communication, making it a cost-effective solution.
+-- Wide Device Support: Many sensors, ICs, and peripherals support the I2C protocol, providing flexibility in component selection.
+- Downsides: 
+-- Limited Cable Length: I2C has limitations on cable length due to signal degradation. For longer distances, additional measures may be needed.
+-- Clock Synchronization: All devices on the bus must operate at the same clock frequency, and clock stretching can occur if a slave device needs more time to process data.
+-- omplexity of Implementation: While I2C is versatile, its multi-master capability and various addressing modes can add complexity to system design.
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+https://www.geeksforgeeks.org
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+concepts to know:
+-RT embedded systems concepts:
+  what happens when microcontroller turns on
+  what happens when an interrupt occurs
+  general architecture
+  what is a calling convension
+-RTOS concepts:
+freertos, linux
+what are system calls
+what is virtual memory
+what are caches and what types of caches there are
+semaphores, mutexes, when and how to use them
+pointers, types of pointers
+memory allocation
+
+coding interview preparation:
+do not focus on algorithms and such
+focus on: 
+- bit manipulations and logical operators
+  -> search in geeks for geeks for "bit manipulation tricks" - two articles
+  -> search in google for "commonly asked bit manipulation questions"
+- linked list
+  -> create my own linkedlist type
+  ->work on common algorithms - reversing, etc
+- string/array manipulation
+  -> start by working on brut force solutions, then advance to more efficient algorithms
+  -> tip, most of the string questions can be solved using a hash map
+- stacks and queues implementations
+  -> 
+  
+leetcode -> commonly asked interview questions
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+https://www.youtube.com/watch?v=AMxNDfLJrg0
+
+Cracking Embedded Systems Interview| Full Guide| Top Interview Questions and Answers
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+review
+https://www.geeksforgeeks.org
+
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+https://www.youtube.com/watch?v=-7pfWTp_FsU
+
+Embedded Software Engineering Interview Questions & Answers
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+how spi works
+---
+miso , mosi, cs, clock
+synchronouse
+can have multiple devices. only one operates at a time
+
+DMA
+---
+peripheral to memory, memory to memory
+automatic transfers
+
+
+Semaphores and mutexes
+---
+
+(mutex is binary semaphore. has ownership (cannot be acquired by multiple threads))
+(semaphore can allow multiple to access a resource. wait(), signal()
+
+
+how to collect data from multiple peripherals in parallel.
+---
+configure DMA to collect data from peripherals
+then use timers to createa syncronized data transfers so that the timing of each fetch will be in exact desired time.
+
+
+volatile
+---
+de-optimize variables used in critical sections 
+- interrupts
+- memory mapped registers 
+- variables used between threads
+
+
+
+critical sections 
+---
+ a critical section is a section of code that must be executed atomically, meaning that once a thread or process enters the critical section, it should be the only one allowed to execute that section until it completes and exits.
+
+
+
+optimize power consumption
+---
+- used power modes (sleep, off, stop, standby etc)
+- use the required clock speed and not faster than needed
+- optimize code and minimize exec time
+- turn of peropherals when not in use
+- in RTOS - tick sideoff
+
+
+benefits of RTOS
+---
+- schedualing.
+- multitasking - (an illusion of it, RT is single core)
+- should not always be used.
+
+
+
+writing ISR
+---
+- keep it short
+- no logs or prints in it
+- no delays
+- dont use mutex/semaphors in it
+- dont try to re-enable interrupts inside it.
+- no long loops
+
+
+
+big endian - msb is stored first
+little endian - msb is stored last
+
+
+pull up/down resistor
+---
+pulls a signal up or down when not in use, in order to avoid interferences.
+
+
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+https://www.youtube.com/watch?v=3KO1Rjy2c0E
+
+Embedded Systems interview questions
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+what is an assembler - translates assembly code into machine code
+what is a compiler 
+
+what is a cross assembler/compiler 
+
+code memory - memory where the code is stored in bin form
+
+memory leak - when no proper free memory takes place
+
+Mnemonics - assembly instructions such as MOV ADD SUBB etc
+
+OPCODES - operation codes. such as MOV A, #30
+
+Embedded C - an extension to C with additional features such addressing I/O, multiple memory addressing, fixed point arithmetics, etc
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+https://www.youtube.com/watch?v=Vjal0I6QEOY
+
+TOP 15 Embedded Systems Interview Questions and Answers 2019 Part-1 | Embedded Systems
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+difference between inline function and macro function - inline include data type diffrentiation
+
+
+hard/soft real time systems - hard rt depends on the output time very strictly and any delay will be considered as a failure.
+soft are less strictly
+
+semaphore - controls resource access acrross threads and processes.
+binary semaphore
+counting semaphore
+
+recursive inline function - it is legal. the compiler will allocate memory space for the first call of the function.
+
+sizes of types are defined by the operating system or FW.
+
+malloc - dynamically allocate memory. returns a pointer of type  (void*)
+malloc(sizeof(0)) will return a valid integer pointer bacause sizeof(0) represents the size of memory required to store an integer. 0 is an interefreer.
+memory is not de-alocated automatically  and user must use free()
+
+forward referencing - declaring funcs or types (structs) without the definition, so that it can be referenced before the actuall definition 
+struct AStruct;
+int main() {
+	struct AStruct x;
+	return 0;
+}
+struct AStruct {
+	//definition
+}
+
+
+call order of constructors and destructores - base constructors are called first. child destructors are called first.
+
+
+OOP definition:
+Encapsulation - private members and methods
+Polymorphism - same pointer can refer to different types of objects in the inheritance tree.
+Abstruction - simplifying complex systems by modeling classes based on their essential properties and behaviors. ex. abstarct class that declares an abstruct method. the inheriting classes provide the specific implementation.
+Inheritance - the definition and reuse of common properties, modeled as a tree, sharing them downward in the tree
+
+
+Variable mapping - the compiler maintaines a symbols and their length and type and addresses
+
+memory leak - uncleared memory accumulation in the lifetime of the process.
+segmentation fault - trying to access a memory space that was already freed up.
+
+ISR - cannot get any parameters and cannot return anything.
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+https://www.youtube.com/watch?v=ESqpt74vUOw&list=PL3uLubnzL2TnTmH9_u5gvNL9uXzZ--pbq&index=1
+
+50 common questions
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+-----------------------------------
+Lession 1
+-----------------------------------
+
+var sizes
+---
+int 4
+char 1
+double 8
+float 4
+
+
+pointer
+---
+-var that holds a number which is an address
+-has a type! int ptr, float ptr
+-NULL pointer - points to nowhere. unique. defined by standards (stadio.h stdlib.h string.h)
+int *p;  p= NULL;  p=0;
+-void pointer - pointer that can point to any type of variable.
+must be casted to read the value from mem. 
+int a=5; double b=3.14; void* vp;
+vp = &a; int x = *((int*)vp);
+vp = &b; int y = *((double*)vp);
+
+ISR - interrupt service routine
+---
+-basically an event handler. the function that handles the interrupt.
+-does not return anything
+-ISR latency - time takes for the ISR to execute
+-ISR must be short and efficient
+
+-can have breakpoints - legal and acceptable but not recommended - changes the original behavior
+
+
+-----------------------------------
+Lession 2
+-----------------------------------
+
+Reducing ISR latency
+---
+-efficient and small
+-avoid loops
+-do NOT disable interrupts because it takes time to enable them back
+-avoid calling high latency functions
+-calling printf within ISR is bad.
+--printf is not reentrant (cannot be called while another call to it is being executed)
+--not thread safe
+--uses dynamic memory allocation
+
+
+Volatile keyword
+---
+tells the compiler to not optimize the variable since its value can be change unexpectedly - volatile
+-uses cases
+--registers
+--globals
+--variables that are shared wbetween threads and tasks
+
+const vs volatile
+---
+const
+-100% compiler controlled
+-value never changes
+-trying to change it case compile time error
+
+volatile
+-0 optimization
+-can change even from outside the current scope.
+
+* a pointer can be volatile
+
+
+Nested interrupts
+---
+interrupts and different priorities that will define which interrupt will be respected first.
+
+
+-----------------------------------
+Lession 3
+-----------------------------------
+
+Embedded C
+---
+C for MCU programming
+-fixed point arithmetics
+-named address space
+-I\O HW addressing which is not supported by regular C
+
+RealTime
+---
+Logical correctness regarding the exact operations within a specific deadline
+ex. a pace maker
+
+
+inline function
+--
+similar to #define function. replaced at compile time. makes the code bigger.
+
+
+static vars
+---
+makes a variable permanent to its declared block. value will be retained when exiting and entring the block.
+
+
+priority inversion
+---
+if a lower priority is executed and a higher proirity is called, the lower will be allowed to finish before entring the higher.
+
+
+
+IPc mechanisms
+---
+pipes
+names pipes (fifo)
+Semaphores
+Shared Memory
+Message queue
+Socket
+
+
+Semaphores
+---
+a variable that controls access to a resource. states if the resource is available.
+(railway track and train example)
+binary semaphore has ony two states
+counting semaphores have many states
+
+
+## operator (token pasting/concatenation)
+---
+#define a(x,y) x##y
+#define b(x) #x
+#define c(x) b(x)
+
+printf("%s\n", c(a(hello, world)));
+printf("%s\n", b(a(22,55)));
+printf("%s\n", b(!8k* ));
+
+helloworld
+a(22,55)
+!8k* 
+
+
+forward referencing
+----
+the compiler reserves memory for the pointer but the variable type to which the pointer points to is not defined!
+
+struct Z *p;
+struct Z
+{
+//content
+};
+
+
+-----------------------------------
+Lession 4
+-----------------------------------
+
+infinite loops
+---
+while (1) 
+or 
+for (;;)
+
+
+who decides the size of the Data types
+---
+the compiler decides, but the OS can enforce its own.
+
+
+what is static linking
+---
+the result of the linker copying all the librart routines used in the program into the executable image.
+requires more disk space but faster than dynamic linking and more portable sinse it does not require the entire libraries to be included on the system where it runs
+
+
+dynamic linking
+---
+-achieved by placing the name of the sharable library in the executable image
+-the actual linking occures when the image is executed
+-multiple programs can share the same single copy of the library, thus saving time.
+
+
+wild pointer
+---
+an uninitialized pointer - can point to any location in memory!
+- must be avoided. all pointers must be initialized
+
+
+near pointer
+---
+a 16bit address pointer (can point up to 64KB)
+-cannot access info outside the computer
+
+
+far pointer
+---
+a 32bit pointer.
+- can access information which is outside the computer memory in a given segment.
+
+
+dangling pointer
+---
+A pointer that has finished its dedicated work but still contains an address
+-must avoid - set these pointers to NULL!
+
+
+
+
+-----------------------------------
+Lession 5
+-----------------------------------
+
+"reigster" storage class
+---
+( auto, static, extern, register)
+
+-register storage qualifier use to define a local variable that should be stored in the CPU register instead of RAM
+{
+ register int fastVariable;
+}
+- for variables that require faster access.
+- it is only a suggestion for the compiler but it is not guaranteed.
+
+
+
+malloc() 
+- used to allocate a single block of memory
+- does not initialize the content of the allocated memory
+calloc() 
+- can allocate n blocks of memory
+- initialize all allocated bytes to 0
+
+
+realloc()
+- reallocating more memory while keeping the content of the already allocated memory.
+
+
+
+free()
+---
+- free up an allocated memory.
+- once freed, it is illegal to use the pointer used to point to the allocated memory.
+usage: 
+int *p;
+int size = 10;
+p=(int*)malloc(size*sizeof(int));
+if (p == NULL)
+	//allocation failed
+else {
+...do work on the array
+}
+free(p);  // free the memory that was allocated and pointed by p
+
+
+
+segmentation fault
+---
+happens when
+- trying to use a dereferenced pointer (points to invalid location in memory)
+- trying to write on READ ONLY memory
+- trying to access a pointer that has been already freed.
+
+
+
+stack overflow
+---
+trying to use more memory on the stack that what was allocated.
+- program will crash or freeze
+
+
+
+
+-----------------------------------
+Lession 6
+-----------------------------------
+
+
+segmentation fault/ core dumps
+---
+happens because of Memory Access Violation (trying to access memory that i dont own)
+core dumps occur when
+- trying to write on read only memory
+- trying to access freed memory
+- stack overflow
+- improper use of scanf
+
+
+A segmantation fault is a result of invalid memory access
+it cauess a SIGINT signal that causes the applicaiton to terminate
+
+A core dump is a file that is written after an application has crashed
+it contains information that can be analized after the fact
+
+example:
+- changing a const string
+char* s = "abcd";
+*s = 'x';
+
+-passing a variable to scanf instead of a pointer
+int p=10;
+scanf("%d", p);  //  error!
+scanf("%d", &p); //this will work
+
+-out of array example
+trying to access an element in the array that is out of bounds
+
+
+-stack overflow
+when for example we have an infinie recursive call
+
+
+
+
+
+
+
+
+
+
