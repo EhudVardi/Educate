@@ -2350,9 +2350,300 @@ int main() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+https://www.youtube.com/watch?v=zUy66Bats5c
+Threading In C++ | Complete Course
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//------------------
+// Introduction
+//TODO: 00:00:00 - 
+//------------------
+#include <iostream>
+
+int main() {
+	return 0;
+}
+//------------------
+
+
+
+
+//------------------
+// Threads In C++ An Introduction
+//TODO: 00:05:00 - 
+//------------------
+#include <iostream>
+
+int main() {
+	return 0;
+}
+//------------------
+
+
+
+
+//------------------
+// Different Types To Create Threads In C++11
+//TODO: 18:09:00 - 
+//------------------
+#include <iostream>
+
+int main() {
+	return 0;
+}
+//------------------
+
+
+
+
+//------------------
+// Join And Detach With Joinable In C++11 Threading
+//TODO: 25:32:00 - 
+//------------------
+#include <iostream>
+
+int main() {
+	return 0;
+}
+//------------------
+
+
+
+
+//------------------
+// Mutex In C++ Threading
+//TODO: 42:41:00 - 
+//------------------
+#include <iostream>
+
+int main() {
+	return 0;
+}
+//------------------
+
+
+
+
+//------------------
+// Mutex Try Lock
+//TODO: 58:56:00 - 
+//------------------
+#include <iostream>
+
+int main() {
+	return 0;
+}
+//------------------
+
+
+
+
+//------------------
+// std::try_lock In C++11 Threading
+//TODO: 01:09:33 - 
+//------------------
+#include <iostream>
+
+int main() {
+	return 0;
+}
+//------------------
+
+
+
+
+//------------------
+// Timed Mutex In C++ Threading
+//TODO: 01:21:07 - 
+//------------------
+#include <iostream>
+
+int main() {
+	return 0;
+}
+//------------------
+
+
+
+
+//------------------
+// Recursive Mutex In C++ Threading
+//TODO: 01:32:51 - 
+//------------------
+#include <iostream>
+
+int main() {
+	return 0;
+}
+//------------------
+
+
+
+
+//------------------
+// Lock Guard In C++ Threading
+//TODO: 01:53:21 - 
+//------------------
+#include <iostream>
+
+int main() {
+	return 0;
+}
+//------------------
+
+
+
+
+//------------------
+// Unique Lock In C++ Threading
+//TODO: 02:02:14 - 
+//------------------
+#include <iostream>
+
+int main() {
+	return 0;
+}
+//------------------
+
+
+
+
+//------------------
+// Condition Variable In C++ Threading
+//TODO: 02:13:49 - 
+//------------------
+#include <iostream>
+
+int main() {
+	return 0;
+}
+//------------------
+
+
+
+
+//------------------
+// DeadLock With Example In C++
+//TODO: 02:28:14 - 
+//------------------
+#include <iostream>
+
+int main() {
+	return 0;
+}
+//------------------
+
+
+
+
+//------------------
+// Thread OR Process Synchronisation
+//TODO: 02:36:57 - 
+//------------------
+#include <iostream>
+
+int main() {
+	return 0;
+}
+//------------------
+
+
+
+
+//------------------
+// std::lock In C++11
+//TODO: 02:50:46 - 
+//------------------
+#include <iostream>
+
+int main() {
+	return 0;
+}
+//------------------
+
+
+
+
+//------------------
+// std::promise And std::future In C++ Threading and why to use them?
+//TODO: 03:10:02 - 
+//------------------
+#include <iostream>
+
+int main() {
+	return 0;
+}
+//------------------
+
+
+
+
+//------------------
+// std::async In C++ Create A Task
+//TODO: 03:18:20 - 
+//------------------
+#include <iostream>
+
+int main() {
+	return 0;
+}
+//------------------
+
+
+
+
+//------------------
+// Producer And Consumer Problem In C++ With Code Implementation
+//TODO: 03:29:08 - 
+//------------------
+#include <iostream>
+
+int main() {
+	return 0;
+}
+//------------------
+
+
+
+
+//------------------
+// Sleep VS Wait In Threading, when to use what?
+//TODO: 03:44:44 - 
+//------------------
+#include <iostream>
+
+int main() {
+	return 0;
+}
+//------------------
+
+
+
+
+
+
+
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
 
 
 
