@@ -2370,39 +2370,203 @@ Threading In C++ | Complete Course
 
 //------------------
 // Introduction
-//TODO: 00:00:00 - 
+// 00:00:00 - 
+// * main is a default thread for the process of our program, from which we "fork" (create) more threads.
+// * a thread is in some terms a lightweight process. unlike process, it shares memory with other threads.
+// * creating a thread (c++11 and above) is achieved with Function pointers, Lambda fucntions, functors member functions and static member functions.
+//
 //------------------
+
+// example - sum all odd numbers and even numbers, in a given large range
+// when using threads we get parallel execution which shortens the exec' time
+
 #include <iostream>
+#include <thread>  // c++11 and above
+#include <chrono>  // to measure exec' time
+#include <algorithm>
+
+using namespace std;
+using namespace std::chrono;
+
+typedef unsigned long long ull;  // shorthand alias
+
+ull evenSum = 0;
+void findEven(ull start, ull end) {
+	for(ull i = start; i<= end; ++i) {
+		if ((i & 1) == 0) {
+			evenSum += i;
+		}
+	}
+}
+ull oddSum = 0;
+void findOdd(ull start, ull end) {
+		for(ull i = start; i<= end; ++i) {
+		if ((i & 1) == 1) {
+			oddSum += i;
+		}
+	}
+}
 
 int main() {
+	ull start = 0, end = 2000000000;
+	
+	cout << "executing without threads..." << endl;
+	auto startTime = high_resolution_clock::now();
+	
+    findEven(start, end);
+    findOdd(start, end);
+	
+	auto duration = duration_cast<microseconds>(high_resolution_clock::now() - startTime);
+	
+	cout << "odd sum = " << oddSum << endl;
+	cout << "even sum = " << evenSum << endl;
+	cout << "duration = " << duration.count()/1000000.0 << endl;
+	
+	
+	cout << "executing with threads..." << endl;
+	startTime = high_resolution_clock::now();
+	
+	oddSum = evenSum = 0;
+	// create and start running findEven & findOdd
+	std::thread tEven(findEven, start, end);
+	std::thread tOdd(findOdd, start, end);
+	// join both threads to main thread - meaning it will block the main thread until both threads finished
+	tEven.join();
+	tOdd.join();
+	
+	duration = duration_cast<microseconds>(high_resolution_clock::now() - startTime);
+	
+	cout << "odd sum = " << oddSum << endl;
+	cout << "even sum = " << evenSum << endl;
+	cout << "duration = " << duration.count()/1000000.0 << endl;
+
 	return 0;
 }
 //------------------
 
-
-
-
-//------------------
-// Threads In C++ An Introduction
-//TODO: 00:05:00 - 
-//------------------
-#include <iostream>
-
-int main() {
-	return 0;
-}
-//------------------
 
 
 
 
 //------------------
 // Different Types To Create Threads In C++11
-//TODO: 18:09:00 - 
+// 00:18:00 - 
+//------------------
+
+// 1. with function pointer
 //------------------
 #include <iostream>
+#include <thread>  // c++11 and above
+
+void fun(int x) {
+	while (x --> 0) {
+		std::cout << x << std::endl;
+	}
+}
+int main() {
+	std::thread t(fun, 10);  // function name is used as the pointer
+	t.join();
+	
+	// creating multiple threads - no guarantee which will start first
+	std::thread t1(fun, 10);
+	std::thread t2(fun, 20);
+	t1.join();
+	t2.join();
+	
+	return 0;
+}
+//------------------
+
+// 2. Lambda function
+//------------------
+#include <iostream>
+#include <thread>
 
 int main() {
+	
+	// injecting lambda expression directly to main
+	auto fun = [](int x) {
+		while (x --> 0) {
+			std::cout << x << std::endl;
+		}
+	};
+	
+	std::thread t(fun, 10); // call the lambda function
+	t.join();
+	
+	return 0;
+}
+//------------------
+
+// 3. Functor (function object) - using a class special "()" operator to define its functionality as a runnable class.
+//------------------
+#include <iostream>
+#include <thread>
+
+class Base {
+public:
+	void operator ()(int x) {
+		while (x --> 0) {
+			std::cout << x << std::endl;
+		}
+	}
+};
+
+int main() {
+	std::thread t(Base(), 10);  // pass the class as the function
+	t.join();
+	return 0;
+}
+//------------------
+
+// 4. Non-static member function
+//------------------
+#include <iostream>
+#include <thread>
+
+class Base {
+    int _y;
+public:
+    Base() {}
+    Base(int y): _y{y} {}
+	void run(int x) {
+		while (x --> 0) {
+			std::cout << x << std::endl;
+		}
+		std::cout << _y << std::endl;
+	}
+};
+
+int main() {
+	Base b(50);
+	// creating the thread. passing the member function of the base as the function pointer (using reference because its a class). since its a non-static function, we need to also pass the class instance so we pass &b. we send it by reference to avoid copying the object
+	std::thread t(&Base::run, &b, 10);
+	t.join();
+	
+	return 0;
+}
+//------------------
+
+// 5. Static member function
+//------------------
+#include <iostream>
+#include <thread>
+
+class Base {
+public:
+	static void run(int x) {
+		while (x --> 0) {
+			std::cout << x << std::endl;
+		}
+	}
+};
+
+int main() {
+	Base b;
+	// creating the thread. passing the member function of the base as the function pointer (using reference because its a class). since its a static function, we dont need to send and instance of an object
+	std::thread t(&Base::run, 10);
+	t.join();
+	
 	return 0;
 }
 //------------------
@@ -2411,22 +2575,67 @@ int main() {
 
 
 //------------------
-// Join And Detach With Joinable In C++11 Threading
-//TODO: 25:32:00 - 
+// "Join", "Joinable" & "Detach" In C++11 Threading
+//TODO: 00:25:32 - 
+
+// Join. once a thread has started, calling "join" will block the current execution flow and wait for it to finish
+// It is possible to ask if a thread is "joinable" meaning if a join call was not called upon it already.
+// "joinable" is used to avoid calling join on a thread that has finished or did not start, which means it is not joinable. calling join on it on situations like this will terminate the program.
+// IMPORTANT! if any thread will not get a call to either join or detach, then if the thread is still running and the program exits, it will call the thread's destructor which will check if it is still joinable and if so, it will terminate it.
 //------------------
 #include <iostream>
+#include <thread>
+#include <chrono>
 
+using namespace std;
+using namespace std::chrono;
+
+void run(int x) {
+	while ( x--> 0)
+		cout << x << endl;
+	this_thread::sleep_for(chrono::seconds(3));
+	cout << "thread finished" << endl;
+}
 int main() {
+	// t1 JOIN
+	thread t1(run, 5);
+	cout << "before t1 join" << endl;
+	t1.join();
+	cout << "after t1 join" << endl;
+	// here the thread has already finished. if we call join again it will terminate the entire program
+	
+	// t2 JOINABLE
+	thread t2(run, 5);
+	cout << "before t2 is joinable" << endl;
+	t2.join();
+	if (t2.joinable()) {
+		cout << "is joinable" << endl;  // will be printed if the previous join is commented.
+		t2.join();
+	}
+	cout << "after t2 is joinable" << endl; // this will print after the thread will finish, proving join is blocking the main thread.
+	
+	// t3 DETACH
+	thread t3(run, 5);
+	cout << "before t3 detach" << endl;
+	if (t3.joinable()) {  // only detach if joinable
+		t3.detach(); // we call detach which will exit the program before t3 will end
+	}
+	cout << "after t3 detach" << endl; // this will be printed immediately, and t3 will not get to print its output
+	
+	this_thread::sleep_for(chrono::seconds(4)); // if we sleep for more than 3 secs before main exists, then t3 will get to finish its job and print its output
+	
+	cout << "program finished" << endl;
 	return 0;
 }
 //------------------
+
 
 
 
 
 //------------------
 // Mutex In C++ Threading
-//TODO: 42:41:00 - 
+//TODO: 00:42:41 - 
 //------------------
 #include <iostream>
 
@@ -2440,7 +2649,7 @@ int main() {
 
 //------------------
 // Mutex Try Lock
-//TODO: 58:56:00 - 
+//TODO: 00:58:56 - 
 //------------------
 #include <iostream>
 
