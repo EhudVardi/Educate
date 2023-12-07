@@ -2635,12 +2635,48 @@ int main() {
 
 //------------------
 // Mutex In C++ Threading
-//TODO: 00:42:41 - 
+// 00:42:41 -
+//  Race condition - when two threads are trying to change shared data in parallel. obviously it is an issue.
+// Critical section - a section of code that r/w shared data and might run in parallel and thus expose a chance of race condition.
+// Mutex (mutual exclusive) - a binary semaphore that is used to control access to critical section, such that only one thread can execute it at a time.
+// Mutex has two functions - lock and unlock (release). 
 //------------------
 #include <iostream>
+#include <thread>
+#include <mutex>
+using namespace std;
+
+int moneyAmount = 0;
+
+void addMoney() {
+    for (int i=0; i<1000000; ++i)
+        ++moneyAmount;
+}
+
+std::mutex m;
+void addMoneyThreadSafe() {
+    m.lock();
+    for (int i=0; i<1000000; ++i)
+        ++moneyAmount;
+    m.unlock();
+}
 
 int main() {
-	return 0;
+
+    std::thread t1(addMoney);
+    std::thread t2(addMoney);
+    t1.join();
+    t2.join();
+    cout << "not safe result: " << moneyAmount << endl;
+
+    moneyAmount = 0;
+    std::thread t1ts(addMoneyThreadSafe);
+    std::thread t2ts(addMoneyThreadSafe);
+    t1ts.join();
+    t2ts.join();
+    cout << "thread safe result: " << moneyAmount << endl;
+
+    return 0;
 }
 //------------------
 
@@ -2649,13 +2685,89 @@ int main() {
 
 //------------------
 // Mutex Try Lock
-//TODO: 00:58:56 - 
+// 00:58:56 - 
+// mutex.try_lock() attempts to lock the mutex. it returns immediately with true or false, where if returned true, the mutex is promised to be locked.
+// try_lock() is non blocking (as opposed to lock()) - it returns immediately.
+// if try_lock() is called again by the same thread after already returned true, it will produce an undefined behaviour, basically a "dead-lock". (there is a possibility to lock a mutex more than once, called recursive_mutex)
+//
+// there are various try_lock function
+// 1. std::try_lock
+// 2. std::mutex::try_lock
+// 3. std::shared_lock::try_lock
+// 4. std::timed_mutex::try_lock
+// 5. std::unique_lock::try_lock
+// 6. std::shared_mutex::try_lock
+// 7. std::recursive_mutex::try_lock
+// 8. std::shared_time_mutex::try_lock
+// 9. std::recursive_timed_mutex::try_lock
+//
 //------------------
+
+// 2. std::mutex::try_lock  (lock method of a single mutex)
+// since we only try to lock, some iterations (of both threads) will be missed and so the final result in counter will be unexpected.
+// if we instead use the simple blocking lock(), the result will always be the same as expected
 #include <iostream>
+#include <thread>
+#include <mutex>
+using namespace std;
+
+int counter = 0;
+int N = 100000;
+std::mutex mtx;
+
+void increaseCounterNTimes() {
+    for (int i=0; i<N; ++i) {
+        if (mtx.try_lock()) {
+            ++counter;
+            mtx.unlock();
+        }
+    }
+}
 
 int main() {
-	return 0;
+
+    std::thread t1(increaseCounterNTimes);
+    std::thread t2(increaseCounterNTimes);
+    t1.join();
+    t2.join();
+
+    cout << "counter increased up to " << counter << endl;
+
+    return 0;
 }
+//------------------
+
+// 2. std::mutex::try_lock
+#include <iostream>
+#include <thread>
+#include <mutex>
+using namespace std;
+
+int counter = 0;
+int N = 100000;
+std::mutex mtx;
+
+void increaseCounterNTimes() {
+    for (int i=0; i<N; ++i) {
+        if (mtx.try_lock()) {
+            ++counter;
+            mtx.unlock();
+        }
+    }
+}
+
+int main() {
+
+    std::thread t1(increaseCounterNTimes);
+    std::thread t2(increaseCounterNTimes);
+    t1.join();
+    t2.join();
+
+    cout << "counter increased up to " << counter << endl;
+
+    return 0;
+}
+
 //------------------
 
 
@@ -2663,11 +2775,73 @@ int main() {
 
 //------------------
 // std::try_lock In C++11 Threading
-//TODO: 01:09:33 - 
+// 01:09:33 - 
+// 1. std::try_lock  (try locking multiple mutexes in series)
+// syntax: std::try_lock(m1, m2, m3, m4,.. ,mn);
+// * try_lock() can have multiple mutexes as arguments. when called, it will try to lock each one in the orders they were passed. if all locks were successful, then it will return -1. if it failed to lock one of the mutexes, it will return a 0-based index of the mutex that failed to be locked, based on the order of how that mutex was passed (e.x. mutex 3 lock failed - return 2)
+// * on failure to lock any of the passed mutexes, the function will release all mutexes it has locked before the failure.
+// * if a call to try_lock result in an exception, unlock is called for any locked objects before rethrowing.
 //------------------
+
+// example: we have two threads, two mutexes and two shared resources, one for each thread.
+// each thread locks its own mutex, updates its resource, unlocks its mutex and then sleep for a second.
+// a third thread is running in the background, constantly trying to lock both mutexes. while both first two threads are sleeping, the third thread will get to lock both mutexes and then consume the values in both resources of the two threads.
+// * notice that the third thread is using try_lock while the first two threads are using lock, which blocks then from continuing. this is intended so if one of the first two threads are trying to lock its own resource, it will have to wait until the third thread will finish using its value.
+// ** std::ref() is a reference wrapper and is required when passing elements by reference to it at thread initialization	
 #include <iostream>
+#include <thread>
+#include <mutex>
+#include <chrono>
+using namespace std;
+
+int X=0, Y=0;
+std::mutex m1, m2;
+
+// put calling thread to sleep for "secs" seconds
+void doWorkForXSecs(int secs) { 
+	std::this_thread::sleep_for(std::chrono::seconds(secs)); 
+}
+
+// the job for the first two threads. for X times, update its own resource and then sleep to allow third thread to consume the updated values
+void incrementXorY(int& XorY, std::mutex& m, const char* desc) {
+	for (int i=0; i<5; ++i) {
+		m.lock();
+		++XorY;
+		cout << desc << XorY << endl;
+		m.unlock();
+		doWorkForXSecs(1);
+	}
+}
+
+// the job of the third thread. constantly try to lock both mutexes and on success, use the values and then release the mutexes so the first two threads can continue their work.
+void consumeXnY() {
+	int useCount = 5;
+	int XplusY = 0;
+	while (1) {  // endless loop that must be broken
+		int lockResult = std::try_lock(m1, m2);  // try locking both mutexes in order to use both shared resources X and Y. if the result is -1 then we successfuly locked both 
+		if (lockResult == -1) { 
+			if (X != 0 && Y != 0) {
+				--useCount;
+				XplusY += X+Y; // use the shared resources.
+				X = Y = 0; // zero the resources after being used.
+				cout << "XplusY " << XplusY << endl;
+			}
+			m1.unlock(); m2.unlock(); // unlock both mutexes! - a must.
+			if (useCount == 0) break; // break the loop if we used the shared resources for the amount of times that was pre-defined.
+		}
+	}
+}
 
 int main() {
+	
+	std::thread t1(incrementXorY, std::ref(X), std::ref(m1), "X ");  
+	std::thread t2(incrementXorY, std::ref(Y), std::ref(m2), "Y ");
+	std::thread t3(consumeXnY);
+	
+	t1.join();
+	t2.join();
+	t3.join();
+	
 	return 0;
 }
 //------------------
@@ -2677,11 +2851,51 @@ int main() {
 
 //------------------
 // Timed Mutex In C++ Threading
-//TODO: 01:21:07 - 
+// 01:21:07 - 
+// 4. std::timed_mutex::try_lock
+// this mutex can block and try to lock for specified amount of time, after which it will return false since it failed to lock. if lock achieved in the alloted time it will return true.
+// available methods:
+// "lock", "try_lock" and "unlock" - the same as regular mutex
+// "try_lock_for" - try to lock until acquired or until a duration elaped.
+// "try_lock_until" - 
 //------------------
+
+// example: "try_lock_for"
+// we create two threads and run the same job. the job is to try to lock for X seconds. if lock success then wait for Y seconds and release the mutex.
+// we can see that if time X (time to try acquire lock) is less than time Y (time a thread wait when acquired a lock), then one thread will not be able to acquire the lock and will fail to enter.
+// X=1, Y=2 -> thread 2 will fail and thread 1 will succeed.
+// X=2, Y=1 -> both threads succeed
+// X=1, Y=1 -> !! unexpected !!
 #include <iostream>
+#include <thread>
+#include <mutex>
+#include <chrono>
+using namespace std;
+
+int amount = 0;
+int X=2, Y=1;
+std::timed_mutex m;
+
+void increment(int i) {
+	if (m.try_lock_for(std::chrono::seconds(X))) {
+		++amount;
+		std::this_thread::sleep_for(std::chrono::seconds(Y));
+		cout << "thread " << i << " entered" << endl;
+		m.unlock();
+	} else {
+		cout << "thread " << i << " failed to enter" << endl;
+	}
+}
 
 int main() {
+	
+	std::thread t1(increment, 1);
+	std::thread t2(increment, 2);
+	
+	t1.join();
+	t2.join();
+	
+	cout << amount << endl;
 	return 0;
 }
 //------------------
@@ -2691,13 +2905,64 @@ int main() {
 
 //------------------
 // Recursive Mutex In C++ Threading
-//TODO: 01:32:51 - 
+// 01:32:51 - 
+// 7. std::recursive_mutex::try_lock
+// this mutex allows the same thread to lock the same mutex multiple times. this is opposed to the regular mutex where if lock is called again will cause a runtime failure.
+// if thread X has locked mutex M for N times, it will HAVE TO unlock it for N times. until then, mutex M will be considered locked for all other threads and they won't be able to lock it themselves.
+// the amount of recursive locks that is allowed is undefined but if reached, then it will return "std:system_error" in case we call "lock" and will return false if we call "try_lock"
+// it is advised to avoid using it if not neccessary
 //------------------
+
 #include <iostream>
+#include <thread>
+#include <mutex>
+using namespace std;
+
+std::recursive_mutex m1;
+int buff = 0;
+
+// Example 1: using recursion
+void recursion(char c, int loopFor) {
+	if (loopFor<0)
+		return;
+	
+	m1.lock();
+	cout << "thread " << c << " " << buff++ << endl;
+	recursion(c, --loopFor);
+	m1.unlock();
+	cout << "unlock by thread " << c << endl;
+}
+
+// Example 2: using loop
+void loop(char c, int loopFor) {
+	for (int i=0; i<loopFor; ++i) {
+		m1.lock();
+		cout << "lock by thread " << c << endl;
+	}
+	for (int i=0; i<loopFor; ++i) {
+		m1.unlock();
+		cout << "unlock by thread " << c << endl;
+	}
+}
 
 int main() {
+	
+	// Example 1: using recursion
+	std::thread t1(recursion, 'A', 1000);
+	std::thread t2(recursion, 'B', 1000);
+	t1.join();
+	t2.join();
+	
+	// Example 2: using loop
+	std::thread t3(loop, 'C', 1000);
+	std::thread t4(loop, 'D', 1000);
+	t3.join();
+	t4.join();
+	
 	return 0;
 }
+
+
 //------------------
 
 
