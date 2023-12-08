@@ -2970,11 +2970,37 @@ int main() {
 
 //------------------
 // Lock Guard In C++ Threading
-//TODO: 01:53:21 - 
+// 01:53:21 - 
+// syntax: "std::lock_guard<std::mutex> myLockGuard(myMutex)"
+// lock_guard is a lightweight wrapper that owns a mutex in certain scope
+// once created, it automatically locks the mutex.
+// once goes out of scope (and thus destroyed), it automatically unlocks the mutex.
+// does not allow direct unlock to the mutex it owns, and it cannot be copied.
+// the example below shows that we want to unlock just before exiting the task, so instead of using regular "unlock" at the end, we can just use a lock_guard, and we can be sure it will unlock when exiting the task since it goes out of scope and thus releasing the mutex.
 //------------------
 #include <iostream>
+#include <thread>
+#include <mutex>
+using namespace std;
+
+std::mutex m1;
+int buff = 0;
+
+void task(const char* threadNum, int loopFor) {
+	std::lock_guard<mutex> lg(m1); // wrap our mutex and acquire lock
+	for (int i=0; i<loopFor; ++i) {
+		buff++;
+		cout << "thread: " << threadNum << " buffer: " << buff << endl;
+	}
+	// implicitly unlock the mutex at exit
+}
 
 int main() {
+	std::thread t1(task, "1", 50);
+	std::thread t2(task, "2", 50);
+	t1.join();
+	t2.join();
+	
 	return 0;
 }
 //------------------
@@ -2984,11 +3010,112 @@ int main() {
 
 //------------------
 // Unique Lock In C++ Threading
-//TODO: 02:02:14 - 
+// 02:02:14 - 
+// syntax: "std::unique_lock<std::mutex> myUniqueLock(myMutex, (optional)STRATEGY)"
+// unique_lock is a class of a mutex ownership. it is also a wrapper.
+// similarly 
+// provides:
+// 1. using multiple locking strategies:
+// 2. timed locking attempts (try_lock_for & try_lock_until)
+// 3. recursive locking
+// 4. transfer of lock ownership (moving of the lock, NOT copying it)
+// 5. condition variables.
+// locking strategies:
+//		TYPE			EFFECT
+//		----			------
+// 0. 					no strategy
+// 1. defer_lock		do not acquire ownership of the mutex
+// 2. try_to_lock		try to acquire ownership of the mutex without blocking
+// 3. adopt_lock		assume the calling thread already have ownership on the mutex.
 //------------------
 #include <iostream>
+#include <thread>
+#include <mutex>
+using namespace std;
+
+std::mutex m1;
+int buff = 0;
+
+// e.x. 1: no strategy
+void task__1(const char* threadNum, int loopFor) {
+	std::unique_lock<mutex> ul(m1); // auto lock here
+	for (int i=0; i<loopFor; ++i) {
+		buff++;
+		cout << "thread: " << threadNum << " buffer: " << buff << endl;
+	}
+	// implicit unlock here on unique_lock destructor
+}
+
+// e.x. 2: defer_lock
+void task__2(const char* threadNum, int loopFor) {
+	std::unique_lock<mutex> ul(m1, std::defer_lock); // just ownership, no lock
+	ul.lock(); // manuall lock it here (lock on the owner, NOT the mutex itself!)
+	for (int i=0; i<loopFor; ++i) {
+		buff++;
+		cout << "thread: " << threadNum << " buffer: " << buff << endl;
+	}
+	// implicit unlock here on unique_lock destructor
+}
+
+// e.x. 3: try_to_lock
+void task__3(const char* threadNum, int loopFor) {
+	std::unique_lock<mutex> ul(m1, std::try_to_lock); // try to take ownership and lock
+	if (ul.owns_lock()) {
+		for (int i=0; i<loopFor; ++i) {
+			buff++;
+			cout << "thread: " << threadNum << " buffer: " << buff << endl;
+		}
+	}
+	// implicit unlock here on unique_lock destructor
+}
+
+// e.x. 4: adopt_lock
+void task__4(const char* threadNum, int loopFor) {
+	m1.lock(); // lock  manually before taking ownership (lock the mutex itself! NOT the unique_lock object
+	std::unique_lock<mutex> ul(m1, std::adopt_lock); // take ownership only. assume the mutex already locked
+	/*
+	//the two lines above are equivalent to:
+	std::unique_lock<mutex> ul(m1, std::defer_lock);
+	ul.lock();
+	*/
+	if (ul.owns_lock()) {
+		for (int i=0; i<loopFor; ++i) {
+			buff++;
+			cout << "thread: " << threadNum << " buffer: " << buff << endl;
+		}
+	}
+	// implicit unlock here on unique_lock destructor
+}
 
 int main() {
+	
+	// e.x. 1: no strategy
+	std::thread t1(task__1, "1", 50);
+	std::thread t2(task__1, "2", 50);
+	t1.join();
+	t2.join();
+		
+	// e.x. 2: defer_lock
+	buff = 0;
+	std::thread t3(task__2, "3", 50);
+	std::thread t4(task__2, "4", 50);
+	t3.join();
+	t4.join();
+		
+	// e.x. 3: try_to_lock
+	buff = 0;
+	std::thread t5(task__3, "5", 500);
+	std::thread t6(task__3, "6", 500);
+	t5.join();
+	t6.join();
+		
+	// e.x. 4: adopt_lock
+	buff = 0;
+	std::thread t7(task__4, "7", 50);
+	std::thread t8(task__4, "8", 50);
+	t7.join();
+	t8.join();
+	
 	return 0;
 }
 //------------------
