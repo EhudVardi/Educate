@@ -3125,11 +3125,64 @@ int main() {
 
 //------------------
 // Condition Variable In C++ Threading
-//TODO: 02:13:49 - 
+// 02:13:49 - 
+// allows notifying other threads, effectively synchronizing them
+// allows a thread to wait for a condition to occur
+// most common use-case is the "producer<->consumer" paradygm.
+// threads are notified using "notify_one()" and "notify_all()"
+// it requires a mutex object in order to work
+// A thread wishing to wait for a condition to occur will follow these steps:
+// 1. aquire the mutex lock using "std::unique_lock<std::mutex> ul(m)"
+// 2. call "wait", "wait_for" or "wait_until". this wait operations atomically release the mutex and suspends the execution of the current thread. 
+//    we pass the CONDITION PREDICATE as a parameter to the wait call.
+//    syntax: "myConditionVariable.Wait(myMutex, CONDITION_PREDICATE);"
+// 3. once the condition defined in the condition variable is met, the thread resumes and the mutex is atomically re-acquired. it is recommended for that thread to manually check for that condition itself, to avoid spurious wakes.
 //------------------
+
+//the example below shows a simple case where one thread is trying to withdraw money from an account, and another thread is trying to add money to the account. the withdraw thread starts first and the main thread waits some time and only then starts the second thread which adds money. money cannot be withdrawed if the balance is insufficient so the withdraw thread waits before attempting its action, and waits for a notification from the add money thread before it attempts to withdraw
 #include <iostream>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <chrono>
+using namespace std;
+
+std::condition_variable cv;
+std::mutex m;
+long balance = 0;
+
+void addMoney(int amount) {
+	cout << "attempting to add " << amount << " to balance..." << endl;
+	std:lock_guard<mutex> lg(m);
+	balance += amount;
+	cout << "amount added to current balance: " << balance << endl;
+	cv.notify_one();  // using "notify_one" since only one thread waits.
+}
+
+void withdrawMoney(int amount) {
+	cout << "attempting to withdraw " << amount << " from balance..." << endl;
+	std::unique_lock<mutex> ul(m);
+	cv.wait(ul,
+	// the CONDITION PREDICATE. while false it will keep waiting 
+	[] { return (balance != 0) ? true : false; } 
+	);
+	if (balance >= amount) {
+		balance -= amount;
+		cout << "amount deducted: " << amount << endl;
+	} else {
+		cout << "amount " << amount << " cannot be deducted, balance of " << balance << " is insufficient." << endl;
+	}
+	cout << "current balance is: " << balance << endl;
+}
 
 int main() {
+	
+	std::thread t1(withdrawMoney, 450);
+	std::this_thread::sleep_for(std::chrono::seconds(2));
+	std::thread t2(addMoney, 500);
+	t1.join();
+	t2.join();
+	
 	return 0;
 }
 //------------------
@@ -3139,11 +3192,62 @@ int main() {
 
 //------------------
 // DeadLock With Example In C++
-//TODO: 02:28:14 - 
+// 02:28:14 - 
+// A situation where two threads are waiting for each other to release a resource that they require in order to continue.
 //------------------
+
+// the example below shows a very simple deadlock situation
+// we have two threads and two mutexes. each thread require both mutexes to be locked in order to execute its critical section and then release the mutexes.
+// thread 1 locks mutex 1 then wait for X microseconds and then it locks mutex 2
+// thread 2 locks mutex 2 then wait for X microseconds and then it locks mutex 1
+// the problem occurs if
+// - thread 1 locks mutex 1 and before locking mutex 2, thread 2 locks mutex 2
+//    OR (the opposite)
+// - thread 2 locks mutex 2 and before locking mutex 1, thread 1 locks mutex 1
+// the result is that thread 1 is waiting for mutex 2 to be released by thread 2 & thread 2 is waiting for mutex 1 to be released by thread 1.
+// Note that we cannot predict if and when this will happen but it CAN happen.
+// to force it to happen, we insert a delay for each thread, after it locks its own mutex (thread 1 locks mutex 1 and thread 2 locks mutex 2). if the delay is large enough then a deadlock is sure to happen every time. 
+// a 1 second delay is sure to make it happen every time
+
 #include <iostream>
+#include <thread>
+#include <mutex>
+#include <chrono>
+using namespace std;
+
+std::mutex m1;
+std::mutex m2;
+
+int lockingDelayus = 1000;
+
+void thread1() {
+	cout << "enter thread 1" << endl;
+	m1.lock();
+	cout << "mutex 1 locked by thread 1" << endl;
+	std::this_thread::sleep_for(std::chrono::microseconds(lockingDelayus));
+	m2.lock();
+	cout << "critical section in thread 1" << endl;
+	m1.unlock();
+	m2.unlock();
+}
+void thread2() {
+	cout << "enter thread 2" << endl;
+	m2.lock();
+	cout << "mutex 2 locked by thread 2" << endl;
+	std::this_thread::sleep_for(std::chrono::microseconds(lockingDelayus));
+	m1.lock();
+	cout << "critical section in thread 2" << endl;
+	m2.unlock();
+	m1.unlock();
+}
 
 int main() {
+	
+	std::thread t1(thread1);
+	std::thread t2(thread2);
+	t1.join();
+	t2.join();
+	
 	return 0;
 }
 //------------------
