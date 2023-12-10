@@ -3208,7 +3208,7 @@ int main() {
 // Note that we cannot predict if and when this will happen but it CAN happen.
 // to force it to happen, we insert a delay for each thread, after it locks its own mutex (thread 1 locks mutex 1 and thread 2 locks mutex 2). if the delay is large enough then a deadlock is sure to happen every time. 
 // a 1 second delay is sure to make it happen every time
-
+// * a simple solution is to just flip the lock order in one of the thread tasks so it will match the order of the second one.
 #include <iostream>
 #include <thread>
 #include <mutex>
@@ -3256,12 +3256,50 @@ int main() {
 
 
 //------------------
-// Thread OR Process Synchronisation
-//TODO: 02:36:57 - 
+// Synchronisation (demonstrated with threads, but applies to processes sync also)
+// 02:36:57 - 
+// this demonstrates the simple concept of critical section, which is a set of commands that must be executed by one thread at a time.
+// a critical section MUST contain a WRITE command. reading a value is not considered a critical section (if nothing is returned from the task, which is common). this means that we must synchronize commands that write on shared variables.
 //------------------
+// the example shows two threads trying to read a shared variable. without proper sync method, and although very rare, a situation might happen that both threads will arrive at the first line of the task at the same time and both will read the balance as 0 and thus the final balance will not be 300.
+// use the "USE_SYNC" to add or remove the sync code to see the result.
 #include <iostream>
+#include <thread>
+#include <mutex>
+using namespace std;
+
+// USE_SYNC == 0  -> no sync - will produce errors
+// USE_SYNC == 1  -> with sync - no errors will be produced
+#define USE_SYNC 0
+
+#if USE_SYNC
+std::mutex m;
+#endif
+
+typedef long long ll;
+ll bankBalance = 0;
+
+void addMoney(ll val) {
+#if USE_SYNC
+	m.lock();
+#endif
+	bankBalance+=val;
+#if USE_SYNC
+	m.unlock();
+#endif
+}
 
 int main() {
+	
+	for (int i=0; i<10000; ++i) {
+	    bankBalance = 0;
+		std::thread t1(addMoney, 100);
+		std::thread t2(addMoney, 200);
+		t1.join();
+		t2.join();
+	    if (bankBalance < 300)
+	        cout << "iteration " << i << ": ERROR!. balance: " << bankBalance << endl;
+	}
 	return 0;
 }
 //------------------
@@ -3271,11 +3309,135 @@ int main() {
 
 //------------------
 // std::lock In C++11
-//TODO: 02:50:46 - 
+// 02:50:46 - 
+// syntax: std::lock(m1, m2, m3, ..., mn);
+// a static function that is used to lock multiple mutex instances at the same time with one call.
+// the lock attempts are done in iterations where when an iteration fails to lock all mutexes, the function unlocks all mutexes that were successfully locked, and then starts a new lock attempt iteration
+// within each successive iteration the mutexes are re-arrainged in such a way that mutexes that failed to get locked in previous iteration will be attempted to get locked FIRST.
+// Notes:
+// 1. the process of locking all passed mutexes uses a sequence of calls to "lock", "try_lock" and "unlock" on each mutex.
+// 2. the ORDER of locking is UNKNOWN. the function will try to lock all given mutexes in ANY order, while ensuring that there's no dead-lock
+// 3. this function is blocking, meaning the caller will wait indefinetly until lock is finished.
+//
+// Case examples:
+// --------------
+//
+// 1. --> No dead-lock 
+//		Thread 1				Thread 2		
+//		--------				--------
+// 	std::lock(m1,m2);			std::lock(m1,m2);
+//
+// 2. --> No dead-lock 
+//        one of the threads will have multiple iterations
+//        * in this case, if we lock each mutex on its own, we WILL have a dead-lock
+//		Thread 1				Thread 2		
+//		--------				--------
+// 	std::lock(m1,m2);			std::lock(m2,m1);
+//
+// 3. --> No dead-lock 
+//        thread 2 will lock m3&m4 first, so thread 1 will release m1 and m2 and will have multiple iterations
+//		Thread 1				Thread 2		
+//		--------				--------
+// 	std::lock(m1,m2,m3,m4);		std::lock(m3,m4);
+// 								std::lock(m1,m2);
+//
+// 4. --> A dead-lock ooccurs here 
+//        when a "lock" call fails, it can only unlock the mutexes it got passed in. thread 1 locks m1&m2, thread 2 locks m3&m4, and at this point, they moved on to the next "lock" call. the previously locked mutexes cannot be freed now because they were locked by another lock call. this is certatain to result a dead-lock.
+//		Thread 1				Thread 2		
+//		--------				--------
+// 	std::lock(m1,m2);			std::lock(m3,m4);
+// 	std::lock(m3,m4);			std::lock(m1,m2);
+//
 //------------------
 #include <iostream>
+#include <thread>
+#include <mutex>
+#include <chrono>
+using namespace std;
+
+std::mutex m1, m2, m3, m4;
+
+void simulateWork() { std::this_thread::sleep_for(std::chrono::milliseconds(10)); }
+
+void case1_t1Task() {
+	std::lock(m1,m2);
+	simulateWork();
+	m1.unlock(); m2.unlock();
+}
+void case1_t2Task() {
+	std::lock(m1,m2);
+	simulateWork();
+	m1.unlock(); m2.unlock();
+}
+
+void case2_t1Task() {
+	std::lock(m1,m2);
+	simulateWork();
+	m1.unlock(); m2.unlock();
+}
+void case2_t2Task() {
+	std::lock(m2,m1);
+	simulateWork();
+	m1.unlock(); m2.unlock();
+}
+
+void case3_t1Task() {
+	std::lock(m1,m2,m3,m4);
+	simulateWork();
+	m1.unlock(); m2.unlock(); m3.unlock(); m4.unlock();
+}
+void case3_t2Task() {
+	std::lock(m3,m4);
+	std::lock(m1,m2);
+	simulateWork();
+	m1.unlock(); m2.unlock(); m3.unlock(); m4.unlock();
+}
+
+void case4_t1Task() {
+	std::lock(m1,m2);
+	std::lock(m3,m4);
+	simulateWork();
+	m1.unlock(); m2.unlock(); m3.unlock(); m4.unlock();
+}
+void case4_t2Task() {
+	std::lock(m3,m4);
+	std::lock(m1,m2);
+	simulateWork();
+	m1.unlock(); m2.unlock(); m3.unlock(); m4.unlock();
+}
 
 int main() {
+	
+	// case1
+	for (int i=0; i<100; i++) {
+		std::thread t1(case1_t1Task); std::thread t2(case1_t2Task);
+		t1.join(); t2.join();
+	}
+	cout << "case 1: " << "finished" << endl;
+	
+	// case2
+	for (int i=0; i<100; i++) {
+		std::thread t1(case2_t1Task); std::thread t2(case2_t2Task);
+		t1.join(); t2.join();
+	}
+	cout << "case 2: " << "finished" << endl;
+	
+	// case3
+	for (int i=0; i<100; i++) {
+		std::thread t1(case3_t1Task); std::thread t2(case3_t2Task);
+		t1.join(); t2.join();
+	}
+	cout << "case 3: " << "finished" << endl;
+	
+	// case4
+	for (int i=0; i<100; i++) {
+		std::thread t1(case4_t1Task); 
+		simulateWork();  // insert some delay to allow t1 to lock all mutexes. if this delay is removed, a dead-lock will occur
+		std::thread t2(case4_t2Task);
+		t1.join(); t2.join();
+	}
+	cout << "case 4: " << "finished" << endl;
+	
 	return 0;
 }
 //------------------
@@ -3285,11 +3447,51 @@ int main() {
 
 //------------------
 // std::promise And std::future In C++ Threading and why to use them?
-//TODO: 03:10:02 - 
+// 03:10:02 - 
+// promise is used to set values or throw exceptions
+// future is used to get data from a promise, check for avaiable data, and wait for the promise to provide data.
+// the promise defines the data that it suppose to provide.
+// the promise is passed as an argument to the thread job func with "std::move(myPromise)", and is received in the func signature with the syntax "std::promise<myDataType>&& myPromiseParameter"
+// when the promise have the data, it signals the future with "myPromise.set_value(myValue)" method.
+// the future object is provided by the promise object
+// we use the future to wait for the promise value by using "myFuture.get()" method.
+// as recommended. we join the thread before main is finished, EVEN though we know for sure the thread has finished!
 //------------------
 #include <iostream>
+#include <thread>
+#include <chrono>
+#include <algorithm>
+#include <future>
+using namespace std;
+using namespace std::chrono;
+
+typedef long int ull;
+
+void findOdd(std::promise<ull>&& oddSumPromise, ull start, ull end) {
+	ull oddSum = 0;
+	for (ull i=start; i<=end; ++i) {
+		if (i & 1) {
+			oddSum += i;
+		}
+	}
+	oddSumPromise.set_value(oddSum);
+}
 
 int main() {
+	
+	ull start=0, end = 1900000000;
+	
+	std::promise<ull> oddSum;
+	std::future<ull> oddFuture = oddSum.get_future();
+	
+	cout << "creating and starting a thread" << endl;
+	std::thread t(findOdd, std::move(oddSum), start, end);
+	cout << "waiting for the promise to be provided" << endl;
+	
+	cout << "oddSum: " << oddFuture.get() << endl;
+	
+	cout << "job completed" << endl;
+	t.join();
 	return 0;
 }
 //------------------
