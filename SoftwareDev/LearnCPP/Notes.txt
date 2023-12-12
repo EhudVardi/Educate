@@ -3501,11 +3501,78 @@ int main() {
 
 //------------------
 // std::async In C++ Create A Task
-//TODO: 03:18:20 - 
+// 03:18:20 - 
+// executes a function asynchronically (can be within a new thread but not must be), and at task end it returns an "std::future" object that holds the result.
+// it encapsulates the promise and future mechanism and simplifies it.
+//
+// launch policies:
+// 1. std::launch::async
+// 		-> start upon creation of the future object.
+// 		-> the task will be executed in a new thread
+// 2. std::launch::deferred
+// 		-> start upon calling "get" function on the future object.
+// 		-> the task will be executed on the main thread (no new thread)
+// 3. std::launch::async | std::launch::deferred	
+//		-> either or, let the computer decide
+//
+// How it works internally:
+// 1. creates a new dedicated thread OR picks a thread from an internal thread-pool, and creates an "std::promise" object to control the sync.
+// 2. it passes the "promise" object to the task function and returns the "future" object that is created from the promise.
+// 3. when the task function exits, the value is set in the future object and the return value of that function will be contained in that object.
+// Notes: 
+// the task function can also be a functor or a lambda function.
+// this is a very clean way to run a regular function in a thread - no need to change anything in the function, meaning we decoupled the threading mechanism from the logic of the function.
 //------------------
 #include <iostream>
+#include <thread>
+#include <chrono>
+#include <algorithm>
+#include <future>
+
+using namespace std;
+using namespace std::chrono;
+
+typedef long int ull;
+
+ull findOdd(ull start, ull end) {
+	
+	cout << "Task thread ID = " << std::this_thread::get_id() << endl;
+	
+	ull oddSum = 0;
+	for (ull i=start; i<=end; ++i) {
+		if (i&1) {
+			oddSum += i;
+		}
+	}
+	return oddSum;
+}
 
 int main() {
+	
+	ull start = 0, end = 1900000000;
+	
+	cout << "Main thread ID = " << std::this_thread::get_id() << endl;
+	
+	cout << "\nExample: policy = async" << endl;
+	std::future<ull> oddSumResAsync = std::async(std::launch::async, findOdd, start, end);
+	cout << "A thread starts upon creation. \n lets wait for a while and only then call \"get\" on the future object. the result will be immediate" << endl;
+	cout << "main thread sleep for 5 seconds.." << endl;
+	std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+	cout << "sleep finished" << endl;
+	cout << "waiting for the result.." << endl;
+	cout << "oddSum: " << oddSumResAsync.get() << endl;
+	cout << "complete." << endl;
+	
+	cout << "\nExample: policy = deferred" << endl;
+	std::future<ull> oddSumResDeferred = std::async(std::launch::deferred, findOdd, start, end);
+	cout << "The task starts when calling \"get\" on the future object. note that it executes on the main thread!. \n lets wait for a while and only then call \"get\" on the future object. the result will take some time" << endl;
+	cout << "main thread sleep for 5 seconds.." << endl;
+	std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+	cout << "sleep finished" << endl;
+	cout << "waiting for the result.." << endl;
+	cout << "oddSum: " << oddSumResDeferred.get() << endl;
+	cout << "complete." << endl;
+	
 	return 0;
 }
 //------------------
@@ -3515,11 +3582,130 @@ int main() {
 
 //------------------
 // Producer And Consumer Problem In C++ With Code Implementation
-//TODO: 03:29:08 - 
+// 03:29:08 - 
+// This is a know problem in thread oriented programming
+// A producer produces data that is saved into a limited buffer.
+// A consumer consumes data within the buffer when available. 
+// Both producer and consumer are MODIFYING (writing) the buffer. producer inserts data while consumer removes data, so to synchronizes this mechanism we must use a mutex. 
+// There can be multiple producers as well as multiple consumers. We'll focus on the simple case of one producer and one consumer.
+// To implement this we need a mutex and a condition variable to add further condition on when the consumer should consume (the buffer is not empty), and when the producer should produce data into the buffer (the buffer is not full
+// when producer produce it notifies the consumer. when the consumer consume it notifies the producer.
+// the "problem" is that the order of the sequence of both producer and consumer taking over the buffer is unexpected. if we consider limit the producer (add a small delay between each production cycle), it is an inefficient use of the system capabilities. 
 //------------------
+
+// this example shows the simple case described above. 
+// The PRODUCER gets a value from which it produces values from that value until 0, and then exits. 
+// it first try to lock the mutex using a unique_lock object and then waits for a notification from the consumer using the condition variable. 
+// once a notification arrives, the condition "buffer is not full" is checked  and if met it tries to lock the mutex. then it pushes the value to the buffer, unlocks the mutex and finally notify the consumer that it can have his turn
+// The CONSUMER enters an infinite loop where on each iteration it waits for a notification from the producer using the same mutex and condition variable instances, but with the "buffer not empty" condition.
+// upon notification it then locks the mutex and dequeue the last value pushed (FILO), unlocks the mutex and finally notifies the producer.
+// NOTE - on each execution of the code, the order of producing and consuming is unexpected!. 
+// if we make the producer sleep a little bit in between production cycles, the order is then expected but is inefficient
+
 #include <iostream>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <deque>
+using namespace std;
+
+std::mutex mu;
+std::condition_variable cv;
+deque<int> buffer;  // a queue-like buffer. basically circular
+const unsigned int maxBuffSize = 50;
+
+void producer_task(int value) {
+	while (value) {
+		std::unique_lock<std::mutex> ul(mu);
+		cv.wait(ul, []() {
+			return buffer.size() < maxBuffSize;
+		} );
+		buffer.push_back(value);
+		cout << "Produced value: " << value << endl;
+		--value;
+		ul.unlock();
+		cv.notify_one();
+		// limit the producer to allow the consumer to get values before the buffer is full
+		//std::this_thread::sleep_for(std::chrono::milliseconds(1));  
+	}
+}
+
+void consumer_task() {
+	while (1) {
+		std::unique_lock<std::mutex> ul(mu);
+		cv.wait(ul, []() {
+			return buffer.size() > 0;
+		} );
+		int value = buffer.back();
+		buffer.pop_back();
+		cout << "Consumed value: " << value << endl;
+		ul.unlock();
+		cv.notify_one();
+	}
+}
 
 int main() {
+	std::thread producerThread(producer_task, 100);
+	std::thread consumerThread(consumer_task);
+	producerThread.join();
+	consumerThread.join();
+	
+	return 0;
+}
+
+
+// this example shows the case where we have one producer and two consumers.
+// the difference is we create two consumer threads with the same task, and also when the producer notifies, it notifies all, not one, though it seems to not have a big difference with the sequence. 
+#include <iostream>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <deque>
+using namespace std;
+
+std::mutex mu;
+std::condition_variable cv;
+deque<int> buffer;  // a queue-like buffer. basically circular
+const unsigned int maxBuffSize = 50;
+
+void producer_task(int value) {
+	while (value) {
+		std::unique_lock<std::mutex> ul(mu);
+		cv.wait(ul, []() {
+			return buffer.size() < maxBuffSize;
+		} );
+		buffer.push_back(value);
+		cout << "Produced value: " << value << endl;
+		--value;
+		ul.unlock();
+		cv.notify_all();
+		// limit the producer to allow the consumer to get values before the buffer is full
+		//std::this_thread::sleep_for(std::chrono::milliseconds(1));  
+	}
+}
+
+void consumer_task(int threadID) {
+	while (1) {
+		std::unique_lock<std::mutex> ul(mu);
+		cv.wait(ul, []() {
+			return buffer.size() > 0;
+		} );
+		int value = buffer.back();
+		buffer.pop_back();
+		cout << "Consumer " << threadID << " Consumed value: " << value << endl;
+		ul.unlock();
+		cv.notify_one();
+	}
+}
+
+int main() {
+	std::thread producerThread(producer_task, 1000);
+	std::thread consumerThread1(consumer_task, 1);
+	std::thread consumerThread2(consumer_task, 2);
+	producerThread.join();
+	consumerThread1.join();
+	consumerThread2.join();
+	
 	return 0;
 }
 //------------------
@@ -3527,9 +3713,16 @@ int main() {
 
 
 
+
 //------------------
 // Sleep VS Wait In Threading, when to use what?
-//TODO: 03:44:44 - 
+// 03:44:44 - 
+// "Sleep": a notification from a thread to the OS to dismiss its execution timeslice, fora specified time (or more time). while sleeping, the OS doesn't try to scheduale more execution time for that thread, until specified sleep time elapses
+// -> sleep will KEEP THE LOCK while sleeping. - blocking
+// -> sleep is a thread function.
+// "Wait": a notification from a thread to the OS to dismiss its execution timeslice until other threads notify the thread (through notify_one or notify_all), at which point the thread can test a specified condition. while waiting, the OS doesn't try to scheduale more execution time for that thread, until the thread is being notified through a shared sync object (or some wakeup scenarios occur)
+// -> wait RELEASES THE LOCK and then waits - non-blocking
+// -> wait is applied to a condition variable which puts the thread into wait state.
 //------------------
 #include <iostream>
 
