@@ -1,6 +1,18 @@
 //Learn CPP
 //---------
 
+// General Resources
+//------------------
+
+https://www.w3schools.com/cpp/cpp_quiz.asp
+https://www.geeksforgeeks.org/hard/cpp-gq/
+https://www.geeksforgeeks.org/c-virtual-functions-question-2/
+https://aticleworld.com/cplusplus-quiz/
+https://www.cplusplus.com/reference/cstdlib/rand/
+https://www.w3resource.com/cpp-exercises/basic/index.php#EDITOR
+
+//------------------
+
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 //https://www.youtube.com/watch?v=bFtkHJy9kIU&t=3798s
@@ -3749,7 +3761,1442 @@ int main() {
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+A complete tutorial playlist
+https://www.youtube.com/watch?v=18c3MTX0PK0&list=PLlrATfBNZ98dudnM48yfGUldqGD0S4FFb
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+How the C++ Compiler Works
+------
+pre-process - evaluate all constants and preprocess phrases
+tokenizing and parsing - creating an "abstract syntax tree"
+- convert all the code to constant data or instructions
+from "abstract syntax tree" it creates actual machine code
+generate .obj file for each source file - translation units
+cpp doesnt care about files, it cares about translation units
+programmer is responsiable to tell what the file type is and how to treat it (giving a .c/.h file will result the compiler handling ti like an old c file - it a convention)
+a translation unit will result an obj file
+#include <iostream> creates a huge overhead. iostream gives us the cin/cout and the << >> print operators, among other things.
+#include [FILE] - paste the included file content in place of the statement. very simple
+the .i files are generated when include statements are in place. it contains the intermediate files where the includes were applied.
+in project properties - preprocess to a file, it will create the .i files and also will NOT compile the program (also wont create obj files)
+#if preprocessor statements
+when including <iostream> the resulting .i file gets huge!
+.obj files are binary data.
+to make a readable obj file (in assembly) - project properties - output file - assembler output - change it from No listing to assembly only listing. this will create an .asm file
+project properties - select "Debug" configuration - C/C++ - optimization - set to maximize speed. this will give an error so then project properties - C/C++ - Code Generation - set basic runtime checks to "default". this will result in a really small footprint asm file.
+function signature in .asm files. its a uniqe code assigned to each func. the linker will use it to find symbols in different files.
+-------
+
+How the C++ Linker Works
+-------
+find where each symbol is and link those together. obj files are in their own scope and cannot see eachother.
+even if we have a single source file, then entry point "main" needs the linker to tell use where it is.
+in C++, when we press the compile button, only compilation will occur! the linking process will not happen. only if we build the project then the linking will happen. to show this we can ommit the "main" func from our project. in this case we'll see that compiling will work but building (compiling and linking) will NOT work. (only app project (executable and not library prject) will produce this linking error.
+compile error code that starts will the letter "C" is a compiler error. LNK is a linker error.
+a declaration of a func can be set to tell the linker to find a resource (a func in this case) with a specific signature.
+if a singature is given but there's no actual definition of that func anywhere, then we get a linking error. Note that this will only happen if we actually try to call that function. if no one calls it, we get 0 linker error. However we get a linker error if we allow the caller function to call this unresolved func, but we do not call the calling function anywhere. the compiler will not drop the caller function, even if it is not called anywhere, and so the unresolved call will remain. This is because this caller function might be used outside of our source file and so it is not dropped from compilation.
+to make a function available only in its own source file, we use the "static" keyword in the func declaration. this will dismiss the linking error mentioned above.
+Duplicated objects with the same signature/name will result a compile error. for example if we define the same function in two separate src files, and call it from one file, the compilying will PASS! but the linking will fail. linker cannot decide which definition of the func it should like our call to.
+"inline" keyword for functions - replace call will content of func, similar to #define macros
+-------
+
+Variables in C++
+-------
+naming memory data to allow referencing.
+data types. C++ is loose with types. the really diference is only the byte count of the data.
+append 'f' to literal floating point value to make it float and not double.
+sizeof operator
+-------
+
+Functions in C++
+-------
+refactoring to functions.
+calling a function required creating a call parameter frame and also a return address, all pushed into the stack.
+compiler can inline a function.
+main is a special function is allowed to not specify to return a value. it will return 0 automatically if not specified
+-------
+
+C++ Header Files
+-------
+a common place to store declarations. no definitions.
+#pragma once - allow including a file only once in a single translation unit, to avoid multiple definitions of funcs/vars as a result of a multiple includes
+#ifndef X #define X ... #endif - this pattern can replace the pragma once.
+we use pragma once because is way more cleaner. in C i used the ifndef a lot. use pragma once!
+include "" and include <> - 
+ "" - we can give a relative path to the included file
+ <> - allow the complier to search for the file
+ 
+.h extension for header files is used in include statements of C headers
+in C++, we do not all the .h to the referenced file. (ex <iostream>)
+--------
+
+How to DEBUG C++ in VISUAL STUDIO
+--------TODO
+
+CONDITIONS and BRANCHES in C++ (if statements)
+--------
+evaluation and branching
+go to dissassembly
+--------
+
+
+BEST Visual Studio Setup for C++ Projects!
+--------TODO
+
+Loops in C++ (for loops, while loops)
+--------TODO
+
+Control Flow in C++ (continue, break, return)
+--------TODO
+
+POINTERS in C++
+--------
+everything is memory.
+a pointer is an integer that stores an address to the memory. it is also a variable and it also has its own address in memory, which btw can be referenced by another pointer.
+void pointer - it is a typeless pointer. this definition only has meaning in the source. its for our eyes.
+ - void* myptr;
+null pointer - set a pointer value to 0 - it is not a valid pointer because 0 is not a valid address. 0 means NULL.
+c++ keyword - "nullptr" a definition for a NULL pointer introduced C++ v11.0
+ void* myptr = nullptr;
+we can point to an existing var with a new pointer. to get the address of a var we put an ampercent next to it.
+ - int x = 8;
+ - void* myptr = &x;
+use the "memory" view to see the value in memory at specific addresses. note that memory is little endian so if int is 4 bytes, it will be stored in reverse order
+changing "void*" to "int*" does NOT actually change anything.
+dereferencing a pointer - this is where we get the value that the pointer is pointing to.
+ - int x = 8;
+ - void* myptr = &x;
+ - *myptr // dereferencing.
+to set a value to a variable pointed by a pointer, we need to set the correct type to the pointer, then use dereference to set the value.
+ - int x = 8;
+ - int* myptr = &x;
+ - *myptr = 10 // dereferencing - now var x will have the value 10
+a pointer is not actually pointing to a BLOCK of memory, but only a single POINT in memory, even though we gave it a size.
+pointer is pointing to a memory on the STACK
+memory allocation - when using the "new" keyword, we allocate a memory on the HEAP. the new will return the address of the newly allocated buffer.
+ - char* buffer = new char[8];
+ - memset(buffer, 10, 8); //now we can use funcs like memset. set all values in buffer to 10.
+we can use delete keyword to de-allocate the memory.
+ - delete[] buffer;
+pointers can point to other pointers, in such an endless chain of pointing
+ - char* buffer = new char[8];
+ - memset(buffer, 10, 8);
+ - char** ptr = &buffer; // a pointer to a pointer.
+--------
+
+REFERENCES in C++
+--------
+pointers in disguise. sugar over pointers.
+references to an existing var. convenient way to reference.
+does not have a variable of its own. does not technically take memory.
+cannot be empty like pointers does. it must refer to an already existing var. - cannot equal to NULL.
+ex
+ - int a = 5;
+ - int& ref = a; // & does not mean here "the address of" like in pointers.
+				 // its just a part of the type name/keyword.
+ref is not a variable here. it is called an "alias"
+ - ref = 2; // if we print ref we'll see the value 2.
+i can be used to easly pass a variable BY ITS REFERENCE 
+ex.
+ this is how affecting a variable by ref is done with POINTERS
+  void Inc(int* value)
+  {
+	(*value)++;
+  }
+  int main()
+  {
+	int a = 5;
+	Inc(&a);
+	Print(a);
+  }
+ here in main we have a local var "a". the func "Inc" takes a pointer to a var, dereference it, then increment the value that is in that memory location. returns nothing back. the syntax is not very nice because we have a lot of * and & its harder to read.
+  
+ this is how affecting a variable by ref is done with REFERENCE
+  void Inc(int& value)
+  {
+	value++;
+  }
+  int main()
+  {
+	int a = 5;
+	Inc(a);
+	Print(a);
+  }
+ here we replaced the * with & on the "Inc" func sig, similar to this line "int& ref = a;" we did above. then we removed the dereferencing in the increment statement.
+ finally we removed the & from the call to the func "Inc". This looks way cleaner.
+in the example above, the compiler will do exactly the same!
+
+once refered to a certain variable, it cannot be changed to other variables!
+ ex
+  int a = 5;
+  int b = 3;
+  int& ref = a;
+  ref = b; //this will not make "ref" refer to variable "b" now, instead it will simply set the variable "a" value to the value in variable "b"
+with pointers we CAN do this like the following
+ ex
+  int a = 5;
+  int b = 3;
+  int* ref = &a; // create the pointer and point it to "a"
+  *ref = 2; // set value in "a" to be 2, by dereferencing the pointer
+  ref = &b; // point the pointer to "b" now
+  *ref = 1; // set value in "b" to be 1, by dereferencing the pointer
+--------
+
+
+CLASSES in C++
+--------
+Need a ; at the end of a class definition
+ -	class Foo {
+ -	
+ -	};
+To public a class variable, we write "public:" and what is below this line will be public
+ -	class Foo {
+ -	public:
+ -		int x, y;
+ -	};
+Usage, as in C#. i.e Foo f; f.x = 3;
+In this example, "f" is and INSTANCE of type CLASS Foo. 
+the name of the var "f" is pointing to the location in memory, like pointers.
+we can send it to a func by REF.  
+ e.x  
+ void Bar(Foo& f);   
+ main {
+	Foo aFoo;
+	Bar(aFoo);
+ }
+The real OOP way to do this is called methods which are functions that is contained within a classs
+ -	class Foo {
+ -	public:
+ -		int x, y;
+ -		void Bar() { ... }
+ -	};
+Then to call the same func we do in main  aFoo.Bar();
+--------
+
+
+CLASSES vs STRUCTS in C++
+--------
+the real only difference between them is that A struct is by default all public whereas a class is private by default. we can add the keyword "public:" or "private:" to any of the two to change that
+e.x
+- class Foo {
+- public:
+- 	int x;	
+- }
+- struct Foo {
+- private:
+- 	int x;	
+- }
+
+When to use each:
+ structs whenever possible, faster, when just manipulating data, such as a Vec2 or something similar. this Vec2 should stay small in definition because it only represent the data of a vector.
+ classes when the functionality is complicated to describe in a single unit struct
+However, a struct can conain functions like classes!!
+Structs should NOT have inheritance relations
+--------
+
+
+--------
+How to Write a C++ Class
+--------
+e.x. Log class
+
+
+class Log 
+{
+public:
+	const int LogLevelError = 0;
+	const int LogLevelWarning = 1;
+	const int LogLevelInfo = 2;
+private:
+	int m_LogLevel = LogLevelInfo;
+public:
+	void SetLevel(int level)
+	{
+		m_LogLevel= level;
+	}
+	
+	void Error(const char* message)
+	{
+		std::cout << "[Error]: " << message << std::endl;
+	}
+	void Warn(const char* message)
+	{
+		std::cout << "[Warning]: " << message << std::endl;
+	}
+	void Info(const char* message)
+	{
+		std::cout << "[Info]: " << message << std::endl;
+	}
+ 
+};
+
+int main()
+{
+	Log log;
+	log.SetLevel(log.LogLevelWarning);  //access to const via the log instance
+	log.Warn("Hello");
+	std:cin.get();
+}
+
+--------
+
+Static in C++
+--------
+static int s_Var = 5; 
+A static Var means that it is only going to be linked inside its own translation unit. the linker is not going to look outside of the definition of the var
+
+to view a variable outside of its translation unit, we remove the "static" keyword, then on the other file that wishes to see that var, we delare it a again only this time we add the "extern" keyword
+This is called "External Linking"
+
+file A
+int s_Var = 5
+file B
+extern int s_Var; 
+int main() {sVar = 6;} 
+
+if we add "static" to s_Var in file A we'll get a compiling error
+
+file A
+static int s_Var = 5
+file B
+extern int s_Var; 
+int main() {sVar = 6;} 
+
+The same is true for functions.
+
+one should mark a variable "static" as much as possible, if this variable is not needed at other translation units
+
+--------
+
+Static for Classes and Structs in C++
+--------
+a static variable in a class is going to exist only once across all instances of that class.
+a static method can only be called "statically" and this method cannot accesss the non static elements of the class
+
+Scope! 
+
+struct Entity 
+{
+	static int x, y;
+	
+	void Print()
+	{
+		std::cout << x << "," << y << std::endl
+	}
+};
+// we need these declarations to make the statics in the struct "Entity" visible via going throught the instance identifier and not the struct identifier.
+// "x" is declared in the scope of the class "Entity". it is a static variable that belongs to the scope of the class Entity 
+int Entity::x;  
+int Entity::y;
+
+int main()
+{
+	Entity e; 
+	e.x = 1; e.y = 2;
+	Entity e1; 
+	e1.x = 5; e1.y = 6;
+	
+	// we can do instead. we can also ommit the creation of the instances!
+	//Entity::x = 1; Entity::y = 2;
+	//
+	
+	e.print(); e1.print();
+	
+	std::cin.get();
+}
+
+static methods can only access other static elements.
+to access a static method we can use the "scope" mechanism
+i.e. 
+struct Entity 
+{
+ ..
+ static void Print()
+ ..
+}
+int main()
+{
+	Entity::Print();
+}
+--------
+
+
+Local Static in C++
+--------
+it is only valid in a local scope - a block {}
+variables generation consideration:
+ scope of var
+ lifetime of var 
+a local static is a variable that exists through the whole life time of the program but its scope is only in the block that it is defined 
+
+local var in a function will initialize only once, and its value is going to be kept whenever the func is called
+void foo(){
+	static int i = 0;
+	print(i);
+}
+main() { foo(); foo(); foo(); }
+
+output
+1
+2
+3
+
+its as if we declare the var outside the func
+int i = 0;
+void foo(){
+	print(i);
+}
+but in this case, ANYONE CAN CHANGE THE VALUE OF THAT VAR, outside of the func foo
+
+A singlton is a good way to ilustrate the usability of this concept
+
+class Singleton{
+public:
+	static Singleton& Get(){   //remember the & means we will get a returned by ref
+		static Singleton instance;
+		return instance;
+	}
+};
+
+--------
+
+
+ENUMS in C++
+--------
+a set of values. a way to give a name to a value.
+enum Foo{
+	A, B, C  // in this case, the names get an iterated value, starting with 0, so A=0,B=1,..
+};
+main(){
+	Foo f1 = A;// ok
+	Foo f2 = 3;// ok
+	Foo f3 = 5;// compile error
+	if (f2 == B)
+	if (f2 > A)
+}
+we can specify the value range of the enum
+enum Foo : unsigned char {
+	A, B, C  // we dont have so many different values so we can be satisfied with an unsigned char
+	// also it has to be an integer
+}
+we can use an enum with the example of the log, making log level into an enum and use it
+--------
+
+
+Constructors in C++
+--------
+a func that is called whenever we construct an object. it is an actual init func.
+a default constructor is given to all classes in case a custom constructer is not defined
+class Foo {
+private:
+	float X, Y;
+	Foo() { } // the constructor. IT WILL NOT ACTUALLY DEFALUT ANY VARIABLE VALUES. we must do that ourselves "Foo() { X = Y = 0.0f; } ". we must init all primitives
+public:
+	void print() { std::cout << X << "," << Y << std::endl; }
+}
+main(){
+	Foo f; // the constructor is called here (apparently without the "new Foo();" thing 
+	std::cout << f.X << "," << f.Y << std::endl
+	f.print();
+}
+
+constructor with parameters
+private:
+	float X, Y;
+	Foo(float x, float y) { X = x; Y = y; } //
+
+we can hide the default constructor so that instances of that class cannot be initiated.
+this is done by overriding the default constructor to be private. 
+this is good for a static only class like a Log class
+
+class Foo {
+private:
+	Foo() {}
+}
+main(){
+	Foo f; // this gives an error
+}
+--------
+
+
+
+Destructors in C++
+--------
+a destructor is a method. it will be called whenever we dewstroy an object.
+THE DESTRUCTOR REFERS TO BOTH STACK AND HEAP ALLOCATIONS
+ objects created in heap (with the new keyword) will be destroyed when we call "delete" on them
+ on the stack (ClassName InstanceName;) whenever the scope ends, the object will be destroyed.
+
+class Foo{
+public:
+	Foo() { Print(CONSTRUCTED) } // constructor
+	~Foo() { Print(DESTROYED) } // destructor 
+	void Print() { .. print .. }
+};
+void Func(){
+	Foo f;
+	f.Print();
+}
+main(){
+	Func(); // after this call we see that both constructor and destructor will be called
+}
+we can call it manually. not really used feature
+void Func(){
+	Foo f;
+	f.~Foo();
+}
+
+
+
+Inheritance in C++
+--------
+class Foo {
+.....
+};
+class Bar : public Foo
+...everything that Foo has...
+.....
+};
+--------
+
+
+Virtual Functions in C++
+--------
+
+Polymorphism
+Dynamic dispatch
+V table
+runtime function map in real time
+
+class Foo{
+public:
+	std::string GetName() { return "AFoo"; } 
+};
+class Bar : public Foo {
+private:
+	std::string m_Name;
+public:
+	Bar(const std::string& name)
+		: m_Name(name); // member initializer list in a constructor. nice way to fill member m_Name with name;
+		
+	std::string GetName() { return m_Name; }
+};
+void PrintFoo(Foo* p_foo){
+	std::out << f->GetName() << std::endl;  
+	// the function can get all "Foo" objects but cannot know if a the "Foo" that passed is actual a "Bar"
+	// since f is a POINTER to the instance, we use -> to access the members
+	
+}
+main() {
+	Foo* f = new Foo();
+	PrintFoo(f);
+	
+	Bar* b = new Bar("ABar");
+	PrintFoo(b);
+}
+
+the program will print 
+	AFoo
+	AFoo
+because of polymorphism, the func PrintFoo cannot know if the Foo that is passed is actual a Bar.
+to fix this we simply add the keyword "virtual" to the declaration of the func "GetName" in Foo
+This will allow it to be overrided and the PrintFoo func will work correctly
+
+class Foo{
+public:
+	virtual std::string GetName() { return "AFoo"; } 
+};
+
+not required, however we can also write "override" on the "GetName" func on Bar
+class Bar : public Foo {
+...	
+	std::string GetName() override { return m_Name; }
+};
+
+--------
+
+
+
+--------
+Interfaces in C++ (Pure Virtual Functions)
+its like an abstract method or an interface on langs such as java/C#
+defines a method in a base class that does not have an implementation, and then force inheriting classes to implement it.
+interface is actually a list of methods that are ALL with no implementation.
+we cannot instantiate an interface because it is not a class.
+
+class Foo{
+public:
+	std::string GetName() = 0; // we removed the implementation. virtual keyword stays.
+};
+class Bar : public Foo {
+private:
+	std::string m_Name;
+public:
+	Bar(const std::string& name)
+		: m_Name(name); // member initializer list in a constructor. nice way to fill member m_Name with name;
+		
+	std::string GetName() { return m_Name; } // if we remove this impl' we wont be able to instantiate classes of this type
+};
+
+main() {
+	Foo* f = new Foo(); // this will trow error - we can no longer instantiate this class because it is fully virtual. we can replace it with Foo* f = new Bar("ABar");
+	PrintFoo(f);
+	
+	Bar* b = new Bar("ABar");
+	PrintFoo(b);
+}
+
+
+We can use pure abstract classes which ARE INTERFACES, to make a super class that both Foo and Bar will inherite. Foo and Bar will both implement it.
+
+class printable {
+public:
+	virtual std::string GetClassName() = 0;
+};
+class Foo : public printable {
+public:
+	std::string GetClassName() override { return "AFoo"; }
+};
+class Bar : public Foo {
+public:
+	std::string GetClassName() override { return "ABar"; }
+};
+
+void PrintPrintable(Printable* obj){
+	std:out << obj->GetClassName() << std:endl;
+}
+main(){
+	Foo* f = new Foo();
+	Bar* b = new Bar();
+	
+	PrintPrintable(f);
+	PrintPrintable(b);
+}
+
+--------
+
+
+Visibility in C++
+--------
+public  // all can see
+private  // only owner can see  
+protected  // only owner and inheriting classes can see 
+**friend**  // can relate two elemnts across two separate irrelatable classes.
+--------
+
+
+Arrays in C++
+--------
+int example[5]; // example is actually a pointer
+example[2] = 3;
+print(example[2]); //will print the value 3
+print(example); //will print the pointer value and not the variable
+example[6]; // errror - memory access violation
+
+for (int i = 0; i < 5; i++)
+	example[i] = 2;
+	
+int* ptr = example;
+*(ptr + 2) = 5; // this is the same as "example[2] = 5;"
+//the arithmetics here will treat ptr with its size of int which is 4.
+//we can cast the pointer to a byte pointerand then we need to modify the arithmetics
+*((char*)ptr + 4*2)
+//also, to  finally set the integere value, we must cast it back to an int pointer
+*(int*)((char*)ptr + 4*2) = 5; // this is exactly as above
+
+//creating arrays on the heap
+int* arr = new int[5]; // this is the same array but its created on the heap
+//arr can now be used exactly the same
+arr[2] = 5;
+//since this is on the heap, we must destroy it after. since its an array, we use "delete[]"
+delete[] arr;
+
+//creating an array on the heap requires more overhead. ex we use a pointer to define and access so it adds jumps in memory, as opposed to creating them on the stack which requires no jumps in memory.
+// for this reason we should create arrays on the stack as much as possible 
+int example[5]; 
+
+//its not easy to keep track of the size of the heap array shown above. its is compiler dependent and not clear where it is store even though the "delete" func must know this somehow right.
+//the stack allocated array size can be shown
+int[7] example;
+int size sizeof(example); // will return 7*4 which is the byte count of the array
+int count = sizeof(example) // sizeof(int); // this will give 7 which is the actual number of integers in the array.
+// we cannot do this with heap allocated arrays because we have a pointer and doing sizeof on a pointer will simply give the size of the pointer (probably 4 - the size of int), and not the size of the array.
+//this also means that once we passa heap array to a function (we pass a pointer), then we cannot know the size of the array anymore. we must maintain it ourselves
+//standard arrays (introduced in C++11) can be use to overcome this. standard array feature, include bounce checking and keeps track of the size of the array.
+// it has an overhead but its a good way to be clean
+#include <Array> //we must include it
+..
+std::array<int, 5> anArray; //definition. we supply with the type and also the size.
+int size = anArray.size(); // this is how we get the size
+--------
+
+
+How Strings Work in C++ (and how to use them)
+--------
+string as an array of chars
+the char type as the type - treat as a byte array
+a character is 1 byte - ascii
+character encodings (utf-8 16 32) to represent big languages
+
+const char* name = "a name"; // basic def. reason for "const" is to be safe, memory access wise. this is of course if we dont want to change the string content
+//we do not delete these allocations since we didnt use the new keyword
+
+//ascii table
+
+//null termination character as a way to know the end of the string
+char* name2[6] = {'a',' ','n','a','m','e' };
+name[2] = 'a';
+print(name2); // since we didnt put a null termination, a lot of junk will be printed. until the next null character
+char* name2[6] = {'a',' ','n','a','m','e', '\0'}; //this will fix the issue
+
+IN C++ WE SHOULD THE STD STRRING
+std:string str; // it is a template of the base stinrg class. a template specialization, of char type
+its a char array
+
+
+#include <string>
+
+std:string str = "some string"; // str in this case will be of type "const char[]"
+//note that if we need to manipulate this array, we can always cast it to a char[]
+std::cout << str << std:endl;
+
+//std:string IS A class, so we can do stuff such as
+str.size();//!! awesome
+
+//to append strings with the std::string, since its a const by definition, we must either use a constructor for one of the strings, or use the += operator to append
+std::string str = "A String" + "Another string"; // ERROR
+std::string str = std::string("A String") + "Another string"; // OK
+std::string str = "A String"; str += "Another string"; // OK
+
+// we can find substrings
+bool contains = str.find("Another") != std::string::npos; // npos is the const definition that there's no position on that string. since "find" returns a position, this comparison will return us whethere the substring is found or not
+
+// pass std::string to a function is BY VALUE ! meaning it sends in a copy
+void func(std::string str) {
+	str += "morestuff"; 
+}
+main(){
+	std::string aStr = "stuff"; 
+	func(aStr); // when the func returns, aStr will NOT BE CHANGED!
+}
+
+// sending string by reference is done by sending a CONST REFERENCE to the string
+// we use const because we must NOT change the addrees reference
+void func(const std::string& str) { 
+	str += "morestuff"; 
+}
+
+--------
+
+
+
+String Literals in C++
+--------
+"String" //the type is "const char[7]" (one more char for null termination)
+
+const char str[7] = "Str\0ing"; // also possible but the explicit termination will cause strlen func (witthing stdlib.h) to be wrong about the string size - 3 instead of 7.
+
+char* str = "string";
+str[2] = 5; // this actually should not happen, because string literals are stored in a read only memory section. it is compiler dependent. VS C++ actually allows this.
+//still IT WILL COMPILE BUT IT WONT CHANGE THE VALUE OF THE CHAR!
+//in DEBUG mode it WILL throw an exception.
+//literals are embedded into the binary compiled files. (exe ort dll)
+
+//to solve this we simply define the string as an array instead of a pointer to the string.
+char str[] = "string";
+str[3] = 5; // this is ok and it will work on runtime
+ 
+//there are more character types. wchar_t is a wide-char, it is 16bits character.
+const wchar_t* strL = L"wide";
+const char16_t* str16 = u"16";
+const char32_t* = str32 = U"32";
+//regular string liternal can be signed with u8"..."
+const char* str = u8"normal";
+
+// std::string_literals can ease the appending of strings.
+// add the letter "s" after the concatenated literal string.
+using namespace std:string_literals
+std:string str = "A"s + " String";
+
+// to ignore excape characters, we can add "R" to the beginning of the string
+
+//const char* str = R"string
+//string1
+//string2
+//string3
+//";
+
+--------
+
+
+CONST in C++
+--------
+//a promise that something will not change. it can be broken..
+const int MAX_AGE = 90; // a const value
+int* a = new int; //create a new pointer on the HEAP!
+*a = 2; //change the value that is in the interger that the pointer is pointing to (dereference)
+a = (int*)&MAX_AGE; // we set the pointer to point to the constnat MAX_AGE. we cast to overcome the const keyword
+
+
+
+const int* a = new int;  //allow pointing address change but not the content
+// this is the same as writing "int const* a = new int;
+*a = 2; //this will NOT work now. 
+a = (int*)&MAX_AGE; //this will still work because the point address is still changeable
+
+int* const a = new int;  //allow content change but not the pointing address
+*a = 2; // this will now work but
+a = (int*)&MAX_AGE; // this will NOT work
+
+//basically its all comes to where the "*" is placed, before or after the "const" keyword
+
+
+//consts will classes and methods
+//putting a const on a method of a class will make it to be able to only READ values
+class Foo{
+	private:
+		int m_bar;
+	public
+		int GetBar() const {
+			m_bar = 2; //this will NOT work!
+			return m_bar;
+		}
+		int SetBar() { //no const here because it is a setter
+			m_bar = 2; //this will NOT work!
+		}
+}
+
+// if we have a function that gets a constant reference of an object, then we cannot call any method inside that object that actually changes its values!
+class Foo{
+	private:
+		int m_bar;
+	public
+		int GetBar() const {
+			m_bar = 2; //this will NOT work!
+			return m_bar;
+		}
+}
+void printFoo(const Foo& foo) {
+	foo.GetBar(); //this will NOT work, if the "const" word is ommited from "GetBar()"
+}
+main(){
+	Foo f;
+	f.GetBar(); // this will throw an error.
+}
+
+//we can bypass the const in this case, with the keyword "mutable"
+class Foo{
+	private:
+		mutable int m_bar;
+	public
+		int GetBar() const {
+			m_bar = 2; //this WILL work now!
+			return m_bar;
+		}
+}
+main(){
+	Foo f;
+	f.GetBar(); // this will NOT throw an error.
+}
+--------
+
+
+
+The Mutable Keyword in C++
+--------
+//same example as above 
+
+//ALSO, Lambda's (keyword "auto") - it is an inline function.
+//when passing a var by value to a lambda, it is pretty much const.
+// we can make the lambda mutable and it will fix the issue
+
+main(){
+	int x = 8;
+	auto f = [=](){  //the [=] means that we pass all above variables by VALUE. [&] is be reference. to send only x, we use [&x]
+		x++;
+		print(x);
+	}
+	f(); //call the lambda
+}
+// the above will not work because we try to change x within the lambda.
+//to fix, we use the mutable keyword
+	auto f = [=]() mutable { 
+		x++;
+		print(x);
+	}
+//remember that after the lambda, x will NOT be changed cause it was sent by VALUE
+
+--------
+
+
+
+Member Initializer Lists in C++ (Constructor Initializer List)
+--------
+// a way to initialize class member in the constructor
+
+//the following is the normal way. we can call both constructors from main
+class Foo{
+	private:
+		std::string m_name;
+		std::string m_name2;
+	public
+		Foo() {
+			m_name = "unknown";
+			m_name2 = "unknown2";
+		}
+		Foo(const std::string& name, const std::string& name2) {
+			m_name = name;
+			m_name2 = name2;
+		}
+}
+
+//the better way is to use member initializer
+class Foo{
+	private:
+		std::string m_name;
+		std::string m_name2;
+	public
+		Foo() 
+			: m_name("unknown"), m_name2("unknown2"), 
+		{
+		}
+		Foo(const std::string& name, const std::string& name2) 
+			: m_name(name), m_name2(name2), 
+		{
+			
+		}
+}
+
+//NOTE we MUST put the variables in the order that the members are defined!
+// if not, some members will be initialized twice! with the default constructor
+// this can be very bad if members are objects which are very costly.
+
+--------
+
+
+
+Ternary Operators in C++ (Conditional Assignment)
+--------
+// syntax (condition) ? (do if true) : (do if false);
+//these can be nested of course
+--------
+
+
+
+How to CREATE/INSTANTIATE OBJECTS in C++
+--------
+//instantiate - two options. on the STACK (primitive) and on the HEAP (managed).
+
+using String = std::string;
+
+class Foo{
+	private:
+		String m_name;
+	public
+		Foo() : m_name("unknown") {}
+		Foo(const std::string& name) : m_name(name) {}
+		
+		const String& GetName() const { return m_Name; } 
+}
+main() {
+	///creating on the STACK
+	//these objects will be dismissed when we exit the CODE BLOCK ({})
+	Foo f1; //in c#/java, this will be NULL! but not here. f is now allocated on the STACK. it is initialized with the empty constructor since we put no params
+	f1.GetName(); //this will work
+	
+	Foo f2("bar"); 
+	//Foo f2 = Foo(bar"); // exactly the same with different syntax
+	print(f2.GetName()); //this will print "bar"
+	
+	///creating on the HEAP
+	//its not enough that there's a pointer to that object, like soe
+	Foo* fp;
+	{
+		Foo f("Bar"); //create on the stack
+		fp = &f; //fp now points to f
+		// at this point, f is a valid object
+	}
+	//here, we still have fp pointing to f, BUT f is now empty!
+	//this is because f is on the stack, and the memory on that address was cleared,
+	// BUT the pointer still points to that memory!
+	
+	//instead, we use the new keyword to instantiate f on the HEAP. also, the identifier f is now a pointer, and not just the actual var/obj
+	Foo* fp;
+	{
+		Foo* f = new Foo("Bar"); //f is now a pointer, pointing to the new obj on the heap
+		fp = &f; //fp still points to f - 
+		// at this point, f is a valid object
+	}
+	
+	//NOTE: on C#, the declaration syntax is a bit different - no "*"! in C++ we SHOULD use the stack when we can.
+	// C# -  Foo  f = new Foo("Bar");
+	// C++ - Foo* f = new Foo("Bar");
+
+	//in C++ we MUST delete objects ourselves.
+	Foo* fp;
+	{
+		Foo* f = new Foo("Bar");
+		fp = &f;
+		delete f;
+	}
+	
+	//if we want to delete an object, outside of the scope that it was define, we need an additional pointer that is defined also outside
+	Foo* fp;
+	{
+		Foo* f = new Foo("Bar"); 
+		fp = &f;
+	}
+	delete(f); //this will NOT work
+	delete(fp); //this will work
+	
+	
+	//IMPORTANT! ACCESS an object's methods/vars:
+	// when we allocate an object on the HEAP, we get back a pointer. Now we cannot access its content the same way we used to access an object that is allocated on the stack (using "."). instead, we have the "->" operator, which doing the work of dereferencing for use.
+	//on the stack
+	Foo f;
+	f.GetName(); //this is ok
+	//on the heap
+	Foo* f = new Foo("Bar");
+	f.GetName(); // will NOT work
+	f->GetName(); // this is how its done
+	
+}
+--------
+
+
+
+The NEW Keyword in C++
+--------
+//tis an operator. goal is to allocates memory. can use on primitives 
+//the allocation must find a continueus array of memory, long enough for that allocation. its pricy, "free list" makes it fast
+int* b = new int; //single int
+int* c = new int[50]; //array of integers
+Foo* foos = new Foo[50];// also on classes, array of that class
+
+//the new keyword not only allocates - it calles the constructor!
+//it returns a void pointer and takes a size
+//both lines below does exactly the same, only the first also calls the constructor
+Foo* f = new Foo();
+Foo* f2 = (Foo*)malloc(sizeof(Foo));
+
+//we must delete objects we created with new
+Foo* f = new Foo();
+delete f;
+//we can automate with smart pointers
+
+//when using the new keyword with brackets (creating arrays), we must call the correct delete
+int* i = new int[50];
+delete[] i;
+--------
+
+
+
+Implicit Conversion and the Explicit Keyword in C++
+--------
+//some syntactic sugar. basically we can create object and give them a value, without calling the constructor in the normal way. even if we have a complex object, the value given will be implicitly converted
+class Foo{
+	private:
+		std::string m_name;
+		int m_num;
+	public:
+		Foo(const std::string& name) : m_name(name) {}
+		Foo(int num) : m_num(num) {}
+		
+		const String& GetName() const { return m_Name; } 
+}
+main(){
+	Foo f1("aName"); 
+	Foo f1 = Foo(aName); //same thing
+	Foo f1 = "aName"; // -> implicit construction
+	
+	Foo f2(2);
+	Foo f2 = 2; // -> implicit construction
+}
+
+// we can use this even when calling functions
+void print(const Foo& f){ ... }
+main(){
+	print(22); // this works
+	print("aName"); // t his doesnt work because the string given is NOT an std::string. it is a const char*
+	// for it to work it must do TWO conversions. const char* -> std::string -> Foo
+	// but it only allowed to do a single conversions
+	print(Foo("AName")); // this will work
+}
+
+//explicit keyword disables this implicite conversion!
+//add it to a consructor and it will cancel the implicite feature
+class Foo{
+	private:
+		std::string m_name;
+		int m_num;
+	public:
+		Foo(const std::string& name) : m_name(name) {}
+		explicit Foo(int num) : m_num(num) {} //we add the explicit keyword to this constructor.
+		
+		const String& GetName() const { return m_Name; } 
+}
+main(){
+	print("aName"); // this will work
+	print(22); // this will NOT work
+}
+
+
+--------
+
+
+//TODO
+OPERATORS and OPERATOR OVERLOADING in C++
+--------
+//we can override operators with specific symbols, so that they would do other oprations.
+//custom operators
+//overriding operators
+--------
+
+
+The "this" keyword in C++
+--------
+//accessiable only in a method (a class function)
+//"this" will return the object that this method belongs to this object's class
+//this is a POINTER to the current class
+--------
+
+
+
+Object Lifetime in C++ (Stack/Scope Lifetimes)
+--------
+//every time we enter a scope, we push a stack in
+//when the scope ends everything on the stack is gone
+//when using this right, it can actually be a good thing
+scope = {...}
+
+class Foo{
+	public:
+		Foo () {print("created"}
+		~Foo () {print("destroyed"}
+}
+main(){
+	{
+		Foo f1;
+		Foo* f2 = new Foo();
+	}
+	//at this point, f1 will no longer exist and the destructor will be called.
+	//but f2's destructor will not be called. only that we dont have a pointer to it anymore.
+}
+
+//here, when the function return, the object will already be destroyed
+//this is bad! this function is not usable
+int* createArray()
+{
+	int array[50];
+	return array; 
+}
+//instead we must  create it outside where we need it
+//alternatively we can create the array in the func, but on the HEAP. then it will be kept
+
+//A good solution is to make use of smart pointers
+// a scope pointer is a good example
+
+class ScopedPtr{
+	private:
+		Foo* m_Ptr;
+	public:
+		ScopedPtr(Foo* ptr) : m_Ptr(ptr) {}
+		~ScopedPtr() {delete m_Ptr;}	
+};
+main(){
+	{
+		ScopedPtr foo = new Foo(); //NOTE! foo here is allocated on the STACK! the "new Foo()" creates a new Foo and returns a pointer, which goes to the constructor of ScopedPtr. the new is not for the ScopedPtr but for the Foo
+	}
+	//at this point, the destructor of Foo will be called
+}
+//the above behavior shows how one of the smart pointers called "unique_ptr" works.
+
+//A GOOD unique use of the this behavior is to measure a time a block is executing
+//we create the timer when the block opens, and that's it. when the block is done, the destructor will be called automatically, so we can put some code there like time calculations. one line of code to measure time.
+--------
+
+
+
+SMART POINTERS in C++ (std::unique_ptr, std::shared_ptr, std::weak_ptr)
+--------
+//allows avoiding calling "new" & "delete". its done automatically.
+//std::unique_ptr (lighter), std::shared_ptr (heavy), std::weak_ptr
+//VERY USEFUL - automate memory management stuff, very safe.
+
+///unique_ptr - when the pointer goes out of scope, the object will get deleted.
+// cannot copy unique pointers for obviouse reasons
+#include <memory>
+class Foo{
+	public:
+		Foo () {print("created"}
+		~Foo () {print("destroyed"}
+		void Print() {...}
+};
+main(){
+	{
+		std::unique_ptr<Foo> aFooPtr(new Foo());
+		//access functions of Foo is done via the pointer so we need the -> operator
+		aFooPtr->Print();
+		//more correct initialization is to call "make_unique"
+		std::unique_ptr<Foo> aFooPtr2 = std::make_unique<Foo>(); //safer way.
+		
+		// we cannot copy unique pointers
+		std::unique_ptr<Foo> someptr = aFooPtr2; //will not compile
+	}
+	//at this point the unique pointer will call the destroy of the Foo object
+}
+
+
+///shared_ptr - using reference counting - counts how many reference do we have to out pointer
+//shared pointers can be copied unlike unique pointers
+//we MUST call "make_shared" to create such a pointer
+main(){
+	{
+		std::shared_ptr<Foo> sharedPtrL1;
+		{
+			std::shared_ptr<Foo> sharedPtrL2 = std::make_shared<Foo>(); //ref count = 1
+			sharedPtrL1 = sharedPtrL2; //this is ok now   //ref count = 2
+		}
+		//at this point the Foo instance still lives, because although sharedPtrL2 got deleted, sharedPtrL1 still exist
+	}
+	//here, the Foo instance will be deleted
+}
+
+///weak_ptr - same as shared (can be copied), but the ref count does NOT change
+// can be used to simply check if the object still lives.
+// if we replace the sharedPtrL1 above to be "weak_ptr", then the Foo instance will get deleted right after we exit the most inner scope. 
+--------
+
+
+
+Copying and Copy Constructors in C++
+--------
+//copy constructors
+//copy when required and avoid copy if not desired
+
+struct Vec2{
+	float x,y;
+	//...ctor....
+}
+main(){
+	Vec2 a = Vec2(1,1);
+	Vec2 b = a; //b here is A COPY! because a and b are NOT pointers
+	
+	Vec2* c = new Vec2(1,1);
+	Vec2* d = c; //NOT a copy. only one Vec2, with two pointers
+	d->x = 5; //this will affect both c.x & d.x
+}
+
+
+//<a complicated example>  showing shallow copy versus deep copy.
+//basically, if we create an instance (on stack), and then create another one but it is equal to the first, and the class of these instances has a pointer, THE POINTEERS WILL BE COPIED! this can make a lot of issues
+//for this reason we can write a "copy constructor" - a construtor that is called for the second string, when we actually copy it.
+//if we create "Foo f1("Str")" with values, then create "Foo f2 = f1", the copy constructor will make sure that the pointer in the class that points to the data is NOT copied with its value (the address is NOT copied). instead, we COPY the entire data and create a new pointer to that new data. this is deep copy. 
+//in the example on the video, the copy constructor copies all members that are NOT pointers, and then allocate all the variables that are pointed, and do a complete value copy.
+
+class String{
+	..... //members (int mSize, char* m_Buffer), constructors
+	
+	//copy constructor
+	String(const String& org)
+		: m_Size(org.m_Size)
+	{
+		m_Buffer = new char[m_Size + 1];  //1 for null termination
+		memcpy(m_Buffer, org.m_Buffer, m_Size);
+		m_Buffer[m_Size] = 0; //null termination
+	}
+	
+	....methods, desctructor
+}
+
+main(){
+	String str1 = "str";
+	String str2 = str1; // here, the copy constructor will automatically be selected and called, and a deep copy is made
+	
+	str2[2] = 'B';
+	
+	//if we print both str1 & str2, we can see that the modification to str2 was only on that object and str1 remains the same!
+}
+
+//if we want a function to print the string, we must pass it by reference, because if not then, the passing of the parameter will create another redundant copy of those objects
+
+void Print(String string) {..print..} //this will make another copy - a deep copy in this case
+void Print(const String& string) {..print..} //this is now passed by ref so no copies are made for the call. 
+
+//we can also make copies in the print func, if we have to do some changes to the incoming string
+void Print(const String& string){
+	String copy = string; // copy is now a deep copy of param string
+	..print..
+}
+--------
+
+
+
+
+The Arrow Operator in C++
+--------
+// "->"  - this operator looks better. it dereference a pointer, and then call the desired func
+class Foo{
+	public:
+		void Print() const { ..print..}
+};
+main(){
+	Foo f1;
+	f1.Print(); //this works well
+	
+	Foo* ptr = &f1; //a new pointer to our instance
+	
+	//to call Print using the new pointer, we can do deferencing so we get the object itself, and then we can use the "." to call Print
+	(*ptr).Print();
+	
+	//BUT WAIT! we can use the "->" to make this easier
+	ptr->Print();
+}
+//also works for members of course
+
+
+// We can overload this operator. one case is that maybe we want to create a ScopedPtr like before, and use it when creating our Foo object so the deletion will be automatic.
+// if we don, then we must overload the -> operator because the ScopedPtr wraps the Foo instance,
+class Foo{
+	public:
+		void Print() const { ..print..}
+};
+class ScopedPtr{ 
+	private:
+		Foo* m_Ptr;
+	public:
+		ScopedPtr(Foo* ptr) : m_Ptr(ptr) {}
+		~ScopedPtr() {delete m_Ptr;}	
+		*Foo operator->() { return m_Ptr; }
+};
+main(){
+	ScopedPtr PtrToFoo = new Foo();
+	PtrToFoo->Print(); //this will NOT work without the -> op overloaded
+	
+	//we CAN make a new method that simply returns the pointer, but its too much code than what we actually need. sometihng like "void GetObj() { return m_Ptr; }"
+	// this works but its not that nice.
+	ScopedPtr PtrToFoo = new Foo();
+	PtrToFoo.GetObj().Print();  
+}
+
+
+//another usage with the operator is to get absolute locations in a structure
+struct Vec3{ float x,y,z; };
+main(){
+	
+	int offset = (int)&((Vec3*)nullptr)->y;
+	// first we take something that is null - nullptr.
+	// then we cast it to Vec3, so we can refere to it as a structure.
+	// then we select the member "y" with the arrow operator
+	// then we get the mem address of that "y"
+	// finally we cast it to an integer.
+	//the example above will print "4" because y is located 4 bytes relative to the start of the object
+}
+--------
+
+
+
+Dynamic Arrays in C++ (std::vector)
+--------
+//uses a template - requires to be given a type (generics in c# ? )
+//can resize. very costly. can be optimized.
+
+
+struct Vertex { float x,y,z; };
+
+////override the << operator for Vertex type so it can be printed easly
+std::ostream& operator<<(&std::ostream stream, const Vertex& vertex) {
+	stream << vertex.x << ", " << vertex.y << ", " << vertex.z; 
+	return stream;
+}
+////
+
+#include <vector>
+
+main(){
+	std::vector<Vertex> vertices; //
+	// std::vector<int> vec; //unlike java, we CAN pass here a primitive. i dosnt have to be an object
+	// std::vector<Vertex*> vertices;  // we can also do a vector of pointers. its valid
+	// BUT, storing stuff like that will destroy the identation of the objects - i.e. in memory they wont be in a single file line one after the other. it would be just pointers, and the actual data will be all over the place. in case of vertices, its way more efficient to have them line up, like in the first code line above
+	
+	// add two new vertices
+	vertices.push_back({ 1, 2, 3 });
+	vertices.push_back({ 4, 5, 6 });
+	
+	//iterate with for loops - note that we have access to the size of the array!
+	for (int i=0; i< vertices.Size(); i++){
+		std::cout << vertices[i] << std::endl;
+	}
+	
+	//iterate with range based for loops. we use a reference (&) so the elements will not be copied while iterated over
+	for (Vertex& v : vertices)
+		std::cout << v << std::endl
+	
+	vertices.clear(); //clear the entire vector 
+	vertices.erase(vertices.begin() + 1); // erase specific vertex. NOTE - we cannot simply write "vertices.erase(3);" because its more complicated. we need an iterator. luckely, we have "vertices.begin()" and to that we add the offset of 1 and that means we remove the second element
+	
+	
+	//Passing it to a function, we WANT to send it by ref, so it wont be copied.
+	// check out the function declaration below
+	Func(vertices);
+}
+
+void Func(std::vector<Vertex>& vertices) {...}
+--------
+
+
+
+
+Optimizing the usage of std::vector in C++
+--------
+//<TODO>
+--------
+
+
+
+
+Using Libraries in C++ (Static Linking)
+--------
+// static means that we attached the binaries directly into our executable (embed?).
+// dynamic library can be loaded on the fly, on runtime, as an external dll.
+// 32/64 bit binary? get the correct one for your project!
+//<TODO> continue
+--------
+
+
+
+Using Dynamic Libraries in C++
+--------
+//<TODO>
+--------
+
+
+
+Making and Working with Libraries in C++ (Multiple Projects in Visual Studio)
+--------
+//<TODO>
+--------
+
+
+
+
+--------
+--------
+
+
+
+
+--------
+--------
+
+
+
+
+--------
+--------
+
+
+
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
