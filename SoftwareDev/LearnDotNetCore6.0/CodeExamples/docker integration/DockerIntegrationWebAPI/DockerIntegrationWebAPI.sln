@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35303.130
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DockerizedWebAPI", "DockerizedWebAPI\DockerizedWebAPI.csproj", "{244443D2-A751-415B-9242-64CE16AF6E2B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockerWebAPIApp", "DockerWebAPIApp\DockerWebAPIApp.csproj", "{460FFE8F-4EE6-4E4B-83EA-2BD965091A28}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{244443D2-A751-415B-9242-64CE16AF6E2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{244443D2-A751-415B-9242-64CE16AF6E2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{244443D2-A751-415B-9242-64CE16AF6E2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{244443D2-A751-415B-9242-64CE16AF6E2B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{460FFE8F-4EE6-4E4B-83EA-2BD965091A28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{460FFE8F-4EE6-4E4B-83EA-2BD965091A28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{460FFE8F-4EE6-4E4B-83EA-2BD965091A28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{460FFE8F-4EE6-4E4B-83EA-2BD965091A28}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,9 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -16,7 +14,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Disable HTTPS redirection in Docker (when running in the container)
+// You can check if it's running in Docker or another environment to skip HTTPS redirection.
+if (!app.Environment.IsDevelopment() && Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
+{
+    Console.WriteLine("Running inside Docker - skipping HTTPS redirection");
+}
+else
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthorization();
 
