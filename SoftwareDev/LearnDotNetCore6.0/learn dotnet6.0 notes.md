@@ -66,6 +66,20 @@
     - Channels simplify asynchronous producer-consumer scenarios as opposed to .net framework where a  custom implementations is required or complex use of BlockingCollection
 
 - Cross-Platform Deployment: Docker
+  - integration with Docker, allowing for execution in a platform independent manner, by adding a dockerfile in the root of the project
+    - built example webapi app - default weather api app, disabled ssl (https) access for simplicity, enabled swagger in all cases (even if running in a container and not in dev env)
+    - use docker to build a docker file\
+      `docker build -f [DOCKERFILE_FILENAME] - t [DOCKER_OUTPUT_IMAGE_FILENAME] [PATH_TO_DOTNET_PROJECT]`\
+      in our example:\
+      `docker build -f DockerWebAPIApp.dockerfile -t dockerwebapiapp .`
+    - create a container and run it, exposing a url to access it.\
+      `docker run -d -p [HOST_PORT]:[CONTAINER_PORT] [DOCKER_IMAGE]`\
+      ("-d" means detached (no console attached), "-p" map host port to container port, the image should already be available on docker desktop)\
+      in our example:\
+      `docker run -d -p 8080:80 -p 8081:443 dockerwebapiapp`
+    - now the container should run. now we can navigate to:\
+      WeatherForecast api controller - `http://localhost:8080/WeatherForecast`\
+      swagger dev gui - `http://localhost:8080/swagger`
 
 - Modern Language Features
 
